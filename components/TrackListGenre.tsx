@@ -25,7 +25,6 @@ export const TrackListGenre: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    width: "45%",
     height: 90,
     borderRadius: 10,
     padding: 10,

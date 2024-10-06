@@ -11,13 +11,13 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             fontSize: fontSize.xs,
             fontWeight: "500",
+            paddingTop: 5,
           },
           headerShown: false,
           tabBarStyle: {
             position: "absolute",
-            borderTopWidth: 0,
-            paddingTop: 8,
-            paddingBottom: 8,
+            paddingBottom: 5,
+            paddingTop: 10,
           },
         }}
       >

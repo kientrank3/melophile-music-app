@@ -127,7 +127,7 @@ const data = [
 
 const SearchScreen = () => {
   return (
-    <View>
+    <ScrollView stickyHeaderIndices={[1]}>
       <View
         style={{
           padding: 10,
@@ -159,7 +159,7 @@ const SearchScreen = () => {
         </View>
         <Camera style={{ width: 30, height: 30 }} color={"#fff"} />
       </View>
-      <View style={{ padding: 10, zIndex: -1 }}>
+      <View style={{ padding: 10, backgroundColor: "#000" }}>
         <View
           style={{
             paddingLeft: 10,
@@ -187,26 +187,30 @@ const SearchScreen = () => {
       </View>
       <View>
         <Text
-          style={{ padding: 10, fontSize: 18, fontWeight: 600, color: "#fff" }}
+          style={{
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            fontSize: 18,
+            fontWeight: 600,
+            color: "#fff",
+          }}
         >
           Browse all
         </Text>
-        <FlatList
-          data={data}
-          renderItem={({ item }) => (
-            <TrackListGenre
-              title={item.title}
-              imageUrl={item.imageUrl}
-              bgColor={item.bgColor}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={{ paddingBottom: 500 }}
-          showsHorizontalScrollIndicator={false}
-        />
+        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+          {data.map((item) => (
+            <View key={item.id} style={{ width: "50%" }}>
+              <TrackListGenre
+                title={item.title}
+                imageUrl={item.imageUrl}
+                bgColor={item.bgColor}
+              />
+            </View>
+          ))}
+          <View style={{ paddingBottom: 300 }} />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
