@@ -1,5 +1,7 @@
 import { TrackListGenre } from "@/components/TrackListGenre";
-import { Camera, Search } from "lucide-react-native";
+import { ArrowLeft, Camera, Search } from "lucide-react-native";
+import { useState } from "react";
+import { colors } from "@/constants/Tokens";
 import {
   View,
   Text,
@@ -8,7 +10,12 @@ import {
   FlatList,
   TextInput,
   ScrollView,
+  StyleSheet,
+  Modal,
+  Button,
 } from "react-native";
+import { BlurView } from "expo-blur";
+import { TrackListItem } from "@/components/TrackListItem";
 
 const data = [
   {
@@ -126,6 +133,12 @@ const data = [
 ];
 
 const SearchScreen = () => {
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
   return (
     <ScrollView stickyHeaderIndices={[1]}>
       <View
@@ -170,19 +183,117 @@ const SearchScreen = () => {
             borderRadius: 5,
           }}
         >
-          <Search color={"#000"} />
-          <TextInput
-            placeholderTextColor="#c4c4c4"
-            placeholder="What do you want to play ?"
+          <TouchableOpacity
             style={{
-              fontSize: 16,
-              fontWeight: 600,
               height: "100%",
               width: "100%",
-              color: "#000",
-              paddingLeft: 10,
+              flexDirection: "row",
+              alignItems: "center",
             }}
-          />
+            onPress={toggleModal}
+          >
+            <Search color={"#000"} />
+
+            <Text
+              style={{
+                paddingLeft: 20,
+                color: "#c4c4c4",
+                fontSize: 16,
+                fontWeight: 600,
+                width: "80%",
+              }}
+              numberOfLines={1}
+            >
+              {searchText || "What do you want to play ?"}
+            </Text>
+          </TouchableOpacity>
+          {/* Modal */}
+          <Modal
+            visible={isModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={toggleModal}
+          >
+            <View
+              style={{
+                backgroundColor: "#282828",
+                height: 60,
+                justifyContent: "center",
+                marginTop: 30,
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TouchableOpacity
+                  onPress={toggleModal}
+                  style={{ width: 60, alignItems: "center" }}
+                >
+                  <ArrowLeft size={30} color={"#fff"} />
+                </TouchableOpacity>
+                <TextInput
+                  selectionColor={"#1DB954"}
+                  value={searchText}
+                  onChangeText={setSearchText}
+                  autoFocus
+                  placeholder="What do you want to play ?"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: "#c4c4c4",
+                    width: "80%",
+                    height: "100%",
+                  }}
+                />
+              </View>
+            </View>
+            <View style={{ height: "100%", backgroundColor: "#000" }}>
+              {/* <View style={{alignItems:'center', justifyContent:'center',height:'80%',padding:30}}>
+              <Text style={{color:'#fff', fontSize:18,fontWeight:700,padding:10}}>Phát nội dung bạn thích</Text>
+              <Text style={{color:'#c4c4c4', fontSize:15,fontWeight:500}}>Tìm kiếm nghệ sĩ, bài hát, podcasts và nhiều nội </Text><Text style={{color:'#c4c4c4', fontSize:15,fontWeight:500}}> dung khác</Text>
+            </View> */}
+              <View>
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontSize: 18,
+                    fontWeight: 600,
+                    padding: 20,
+                  }}
+                >
+                  Các tìm kiếm gần đây
+                </Text>
+                <TrackListItem />
+                <TrackListItem />
+                <TrackListItem />
+                <TrackListItem />
+                <View
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    paddingVertical: 20,
+                  }}
+                >
+                  <TouchableOpacity
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "#fff",
+                      height: 30,
+                      borderRadius: 20,
+                      width: 220,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}
+                    >
+                      Xoá nội dung tìm kiếm gần đây
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
       </View>
       <View>
@@ -214,4 +325,5 @@ const SearchScreen = () => {
   );
 };
 
+const styles = StyleSheet.create({});
 export default SearchScreen;

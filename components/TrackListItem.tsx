@@ -15,9 +15,9 @@ export const TrackListItem = () => {
             alt="image"
           />
         </View>
-        <View className="flex-1">
-          <Text className="text-white text-sm px-1">Anh Trai Say "Hi"</Text>
-          <Text className="text-gray-300 text-xs px-1">HieuThuHai</Text>
+        <View className="flex-1 px-2 ">
+          <Text className="text-white text-base px-1">Anh Trai Say "Hi"</Text>
+          <Text className="text-gray-300 text-sm px-1">HieuThuHai</Text>
         </View>
       </View>
     </TouchableHighlight>
