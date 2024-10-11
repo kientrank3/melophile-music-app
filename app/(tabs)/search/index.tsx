@@ -1,20 +1,16 @@
 import { TrackListGenre } from "@/components/TrackListGenre";
 import { ArrowLeft, Camera, Search } from "lucide-react-native";
 import { useState } from "react";
-import { colors } from "@/constants/Tokens";
 import {
   View,
   Text,
   Image,
   TouchableOpacity,
-  FlatList,
   TextInput,
   ScrollView,
   StyleSheet,
   Modal,
-  Button,
 } from "react-native";
-import { BlurView } from "expo-blur";
 import { TrackListItem } from "@/components/TrackListItem";
 
 const data = [
@@ -141,67 +137,31 @@ const SearchScreen = () => {
 
   return (
     <ScrollView stickyHeaderIndices={[1]}>
-      <View
-        style={{
-          padding: 10,
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <View className="p-2.5 flex-row justify-between items-center">
+        <View className="flex-row items-center">
           <TouchableOpacity>
             <Image
-              style={{ width: 40, height: 40, borderRadius: 40 }}
+              className="w-10 h-10 rounded-full"
               source={{
                 uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
               }}
               alt="image"
             />
           </TouchableOpacity>
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 23,
-              fontWeight: 700,
-              paddingLeft: 18,
-            }}
-          >
-            Search
-          </Text>
+          <Text className="text-white text-2xl font-bold pl-4">Search</Text>
         </View>
-        <Camera style={{ width: 30, height: 30 }} color={"#fff"} />
+        <Camera className="w-8 h-8" color={"#fff"} />
       </View>
-      <View style={{ padding: 10, backgroundColor: "#000" }}>
-        <View
-          style={{
-            paddingLeft: 10,
-            flexDirection: "row",
-            backgroundColor: "#fff",
-            height: 40,
-            alignItems: "center",
-            borderRadius: 5,
-          }}
-        >
+      <View className="p-2.5 bg-black">
+        <View className="pl-2.5 flex-row bg-white h-10 items-center rounded-md">
           <TouchableOpacity
-            style={{
-              height: "100%",
-              width: "100%",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
+            className="h-full w-full flex-row items-center"
             onPress={toggleModal}
           >
             <Search color={"#000"} />
 
             <Text
-              style={{
-                paddingLeft: 20,
-                color: "#c4c4c4",
-                fontSize: 16,
-                fontWeight: 600,
-                width: "80%",
-              }}
+              className="pl-5 color-gray-400 text-base text-bold"
               numberOfLines={1}
             >
               {searchText || "What do you want to play ?"}
@@ -215,17 +175,15 @@ const SearchScreen = () => {
             onRequestClose={toggleModal}
           >
             <View
+              className="h-14 justify-center mt-7"
               style={{
                 backgroundColor: "#282828",
-                height: 60,
-                justifyContent: "center",
-                marginTop: 30,
               }}
             >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View className="flex-row items-center">
                 <TouchableOpacity
                   onPress={toggleModal}
-                  style={{ width: 60, alignItems: "center" }}
+                  className="w-16 items-center"
                 >
                   <ArrowLeft size={30} color={"#fff"} />
                 </TouchableOpacity>
@@ -235,58 +193,26 @@ const SearchScreen = () => {
                   onChangeText={setSearchText}
                   autoFocus
                   placeholder="What do you want to play ?"
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: "#c4c4c4",
-                    width: "80%",
-                    height: "100%",
-                  }}
+                  className="text-base font-medium color-gray-400 w-10/12 h-full"
                 />
               </View>
             </View>
-            <View style={{ height: "100%", backgroundColor: "#000" }}>
+            <View className="h-full bg-black">
               {/* <View style={{alignItems:'center', justifyContent:'center',height:'80%',padding:30}}>
               <Text style={{color:'#fff', fontSize:18,fontWeight:700,padding:10}}>Phát nội dung bạn thích</Text>
               <Text style={{color:'#c4c4c4', fontSize:15,fontWeight:500}}>Tìm kiếm nghệ sĩ, bài hát, podcasts và nhiều nội </Text><Text style={{color:'#c4c4c4', fontSize:15,fontWeight:500}}> dung khác</Text>
             </View> */}
               <View>
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 18,
-                    fontWeight: 600,
-                    padding: 20,
-                  }}
-                >
+                <Text className="color-white text-xl font-semibold p-5">
                   Các tìm kiếm gần đây
                 </Text>
                 <TrackListItem />
                 <TrackListItem />
                 <TrackListItem />
                 <TrackListItem />
-                <View
-                  style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    paddingVertical: 20,
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{
-                      borderWidth: 1,
-                      borderColor: "#fff",
-                      height: 30,
-                      borderRadius: 20,
-                      width: 220,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text
-                      style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}
-                    >
+                <View className="w-full justify-center items-center py-5">
+                  <TouchableOpacity className="border border-white h-7 rounded-full w-56 justify-center items-center">
+                    <Text className="color-white text-xs font-semibold">
                       Xoá nội dung tìm kiếm gần đây
                     </Text>
                   </TouchableOpacity>
@@ -297,20 +223,12 @@ const SearchScreen = () => {
         </View>
       </View>
       <View>
-        <Text
-          style={{
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            fontSize: 18,
-            fontWeight: 600,
-            color: "#fff",
-          }}
-        >
+        <Text className="px-2 py-1 text-[18px] font-semibold text-white">
           Browse all
         </Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+        <View className="flex-row flex-wrap">
           {data.map((item) => (
-            <View key={item.id} style={{ width: "50%" }}>
+            <View key={item.id} className="w-1/2">
               <TrackListGenre
                 title={item.title}
                 imageUrl={item.imageUrl}
@@ -318,7 +236,7 @@ const SearchScreen = () => {
               />
             </View>
           ))}
-          <View style={{ paddingBottom: 300 }} />
+          <View className="pb-80" />
         </View>
       </View>
     </ScrollView>
