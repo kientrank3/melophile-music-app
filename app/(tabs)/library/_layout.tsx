@@ -1,6 +1,8 @@
 import { StackScreenWithSearchBar } from "@/constants/Layout";
 import { Stack } from "expo-router";
 import { View } from "react-native";
+import LibraryScreen from "./index";
+import { LibraryParamList } from "./type";
 
 export default function LibraryLayout() {
   return (
@@ -11,6 +13,22 @@ export default function LibraryLayout() {
           options={{
             ...StackScreenWithSearchBar,
             headerTitle: "Library",
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="userLibrary/index"
+          options={{
+            headerTitle: "User Library",
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="userSettings/index"
+          options={{
+            headerTitle: "User Settings",
             headerShown: false,
           }}
         />

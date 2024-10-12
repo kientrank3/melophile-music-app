@@ -1,4 +1,6 @@
 import React from "react";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { LibraryParamList } from "./type"; // Import LibraryParamList
 import {
   View,
   Text,
@@ -57,7 +59,8 @@ const data: LibraryItem[] = [
   },
 ];
 
-const LibraryScreen: React.FC = () => {
+const LibraryScreen = () => {
+  const navigation = useNavigation<NavigationProp<LibraryParamList>>();
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity className="flex-row items-center p-4">
       {item.icon ? (
@@ -84,15 +87,18 @@ const LibraryScreen: React.FC = () => {
 
   return (
     <View className="flex-1 bg-black">
+      {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-4">
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity>
+        <View className="flex-row items-center">
+          <TouchableOpacity
+            onPress={() => navigation.navigate("userLibrary/index")}
+          >
             <Image
               style={{ width: 40, height: 40, borderRadius: 40 }}
               source={{
                 uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
               }}
-              alt="image"
+              alt="Profile image"
             />
           </TouchableOpacity>
           <Text className="text-white text-2xl font-bold px-4">Library</Text>
@@ -102,27 +108,32 @@ const LibraryScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      <View className="flex-row justify-between px-4">
-        <TouchableOpacity className="px-2 py-1 bg-gray-800 rounded-full">
-          <Text className="text-white">Playlists</Text>
+      {/* Filter Section */}
+      <View className="flex-row justify-between px-4 mb-4">
+        <TouchableOpacity className="px-3 py-1 bg-gray-800 rounded-full">
+          <Text className="text-white text-sm">Playlists</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="px-2 py-1">
-          <Text className="text-gray-400">Artists</Text>
+        <TouchableOpacity className="px-3 py-1">
+          <Text className="text-gray-400 text-sm">Artists</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="px-2 py-1">
-          <Text className="text-gray-400">Albums</Text>
+        <TouchableOpacity className="px-3 py-1">
+          <Text className="text-gray-400 text-sm">Albums</Text>
         </TouchableOpacity>
       </View>
 
-      <Text className="text-gray-400 px-4 py-2">Recently played</Text>
+      {/* Recently Played Section */}
+      <Text className="text-gray-400 px-4 py-2 text-sm">Recently played</Text>
 
+      {/* List of Items */}
       <FlatList
         data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 80 }}
       />
 
-      <View className="flex-row justify-between items-center p-4 border-t border-gray-700">
+      {/* Footer Navigation */}
+      <View className="flex-row justify-around items-center p-4 border-t border-gray-700">
         <Ionicons name="home" size={24} color="gray" />
         <Ionicons name="search" size={24} color="gray" />
         <Ionicons name="library" size={24} color="white" />
@@ -130,5 +141,4 @@ const LibraryScreen: React.FC = () => {
     </View>
   );
 };
-
 export default LibraryScreen;
