@@ -6,7 +6,7 @@ export default function TabLayout() {
   return (
     <>
       <Tabs
-        initialRouteName="search"
+        initialRouteName="home"
         screenOptions={{
           tabBarActiveTintColor: colors.primary,
           tabBarLabelStyle: {

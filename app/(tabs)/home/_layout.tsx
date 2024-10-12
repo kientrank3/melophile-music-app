@@ -5,7 +5,7 @@ import { View } from "react-native";
 export default function HomeLayout() {
   return (
     <View style={{ flex: 1, paddingTop: 30 }}>
-      <Stack>
+      <Stack initialRouteName="index">
         <Stack.Screen
           name="index"
           options={{

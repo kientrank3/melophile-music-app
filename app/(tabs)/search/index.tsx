@@ -1,6 +1,6 @@
 import { TrackListGenre } from "@/components/TrackListGenre";
 import { ArrowLeft, Camera, Search } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,127 +12,145 @@ import {
   Modal,
 } from "react-native";
 import { TrackListItem } from "@/components/TrackListItem";
+import supabase from "@/utils/supabase";
+import { Genre } from "@/utils/database.types";
 
-const data = [
-  {
-    id: "1",
-    title: "Music",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#E44E9E",
-  },
-  {
-    id: "2",
-    title: "Podcasts",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#276754",
-  },
-  {
-    id: "3",
-    title: "Live Events",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#905AD4",
-  },
-  {
-    id: "4",
-    title: "Made For You",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#2854a6",
-  },
-  {
-    id: "5",
-    title: "New Releases",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#9BAF29",
-  },
-  {
-    id: "6",
-    title: "Vietnamese Music",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#6D848E",
-  },
-  {
-    id: "7",
-    title: "Made For You",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#2854a6",
-  },
-  {
-    id: "8",
-    title: "New Releases",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#9BAF29",
-  },
-  {
-    id: "9",
-    title: "Vietnamese Music",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#6D848E",
-  },
-  {
-    id: "10",
-    title: "Made For You",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#2854a6",
-  },
-  {
-    id: "11",
-    title: "New Releases",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#9BAF29",
-  },
-  {
-    id: "12",
-    title: "Vietnamese Music",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#6D848E",
-  },
-  {
-    id: "13",
-    title: "Music",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#E44E9E",
-  },
-  {
-    id: "14",
-    title: "Podcasts",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#276754",
-  },
-  {
-    id: "15",
-    title: "Music",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#E44E9E",
-  },
-  {
-    id: "16",
-    title: "Podcasts",
-    imageUrl:
-      "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-    bgColor: "#276754",
-  },
-];
+// const data = [
+//   {
+//     id: "1",
+//     title: "Music",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#E44E9E",
+//   },
+//   {
+//     id: "2",
+//     title: "Podcasts",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#276754",
+//   },
+//   {
+//     id: "3",
+//     title: "Live Events",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#905AD4",
+//   },
+//   {
+//     id: "4",
+//     title: "Made For You",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#2854a6",
+//   },
+//   {
+//     id: "5",
+//     title: "New Releases",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#9BAF29",
+//   },
+//   {
+//     id: "6",
+//     title: "Vietnamese Music",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#6D848E",
+//   },
+//   {
+//     id: "7",
+//     title: "Made For You",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#2854a6",
+//   },
+//   {
+//     id: "8",
+//     title: "New Releases",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#9BAF29",
+//   },
+//   {
+//     id: "9",
+//     title: "Vietnamese Music",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#6D848E",
+//   },
+//   {
+//     id: "10",
+//     title: "Made For You",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#2854a6",
+//   },
+//   {
+//     id: "11",
+//     title: "New Releases",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#9BAF29",
+//   },
+//   {
+//     id: "12",
+//     title: "Vietnamese Music",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#6D848E",
+//   },
+//   {
+//     id: "13",
+//     title: "Music",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#E44E9E",
+//   },
+//   {
+//     id: "14",
+//     title: "Podcasts",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#276754",
+//   },
+//   {
+//     id: "15",
+//     title: "Music",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#E44E9E",
+//   },
+//   {
+//     id: "16",
+//     title: "Podcasts",
+//     imageUrl:
+//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
+//     bgColor: "#276754",
+//   },
+// ];
 
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
+  };
+  const [genres, setGenres] = useState<Genre[]>([]); // Khai báo state với kiểu Genre[]
+
+  useEffect(() => {
+    fetchGenres();
+  }, []);
+
+  const fetchGenres = async () => {
+    const { data, error } = await supabase.from("Genre").select("*");
+
+    if (error) {
+      console.log("Error fetching genres:", error.message);
+    } else {
+      setGenres(data || []);
+      console.log(genres);
+    }
   };
 
   return (
@@ -227,12 +245,12 @@ const SearchScreen = () => {
           Browse all
         </Text>
         <View className="flex-row flex-wrap">
-          {data.map((item) => (
+          {genres.map((item) => (
             <View key={item.id} className="w-1/2">
               <TrackListGenre
                 title={item.title}
                 imageUrl={item.imageUrl}
-                bgColor={item.bgColor}
+                bgColor={item.color}
               />
             </View>
           ))}
