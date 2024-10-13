@@ -6,7 +6,6 @@ export default function TabLayout() {
   return (
     <>
       <Tabs
-        initialRouteName="home"
         screenOptions={{
           tabBarActiveTintColor: colors.primary,
           tabBarLabelStyle: {
@@ -23,7 +22,7 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="home"
+          name="index"
           options={{
             title: "Home",
             tabBarIcon: ({ color }) => <House size={26} color={color} />,
