@@ -15,121 +15,6 @@ import { TrackListItem } from "@/components/TrackListItem";
 import supabase from "@/utils/supabase";
 import { Genre } from "@/utils/database.types";
 
-// const data = [
-//   {
-//     id: "1",
-//     title: "Music",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#E44E9E",
-//   },
-//   {
-//     id: "2",
-//     title: "Podcasts",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#276754",
-//   },
-//   {
-//     id: "3",
-//     title: "Live Events",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#905AD4",
-//   },
-//   {
-//     id: "4",
-//     title: "Made For You",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#2854a6",
-//   },
-//   {
-//     id: "5",
-//     title: "New Releases",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#9BAF29",
-//   },
-//   {
-//     id: "6",
-//     title: "Vietnamese Music",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#6D848E",
-//   },
-//   {
-//     id: "7",
-//     title: "Made For You",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#2854a6",
-//   },
-//   {
-//     id: "8",
-//     title: "New Releases",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#9BAF29",
-//   },
-//   {
-//     id: "9",
-//     title: "Vietnamese Music",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#6D848E",
-//   },
-//   {
-//     id: "10",
-//     title: "Made For You",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#2854a6",
-//   },
-//   {
-//     id: "11",
-//     title: "New Releases",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#9BAF29",
-//   },
-//   {
-//     id: "12",
-//     title: "Vietnamese Music",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#6D848E",
-//   },
-//   {
-//     id: "13",
-//     title: "Music",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#E44E9E",
-//   },
-//   {
-//     id: "14",
-//     title: "Podcasts",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#276754",
-//   },
-//   {
-//     id: "15",
-//     title: "Music",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#E44E9E",
-//   },
-//   {
-//     id: "16",
-//     title: "Podcasts",
-//     imageUrl:
-//       "https://i.scdn.co/image/ab67fb8200005caf474a477debc822a3a45c5acb",
-//     bgColor: "#276754",
-//   },
-// ];
-
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -154,7 +39,7 @@ const SearchScreen = () => {
   };
 
   return (
-    <ScrollView stickyHeaderIndices={[1]}>
+    <ScrollView stickyHeaderIndices={[1]} className="mt-4">
       <View className="p-2.5 flex-row justify-between items-center">
         <View className="flex-row items-center">
           <TouchableOpacity>
@@ -166,7 +51,7 @@ const SearchScreen = () => {
               alt="image"
             />
           </TouchableOpacity>
-          <Text className="text-white text-2xl font-bold pl-4">Search</Text>
+          <Text className="text-white text-2xl font-bold pl-4">Tìm kiếm</Text>
         </View>
         <Camera className="w-8 h-8" color={"#fff"} />
       </View>
@@ -242,7 +127,7 @@ const SearchScreen = () => {
       </View>
       <View>
         <Text className="px-2 py-1 text-[18px] font-semibold text-white">
-          Browse all
+          Duyệt tìm tất cả
         </Text>
         <View className="flex-row flex-wrap">
           {genres.map((item) => (
