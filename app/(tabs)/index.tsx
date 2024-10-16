@@ -10,6 +10,7 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from "@/components/ui/drawer";
+import { getAllGenre } from "@/controllers/database";
 import { Genre } from "@/utils/database.types";
 import supabase from "@/utils/supabase";
 import {
@@ -119,19 +120,13 @@ const HomeScreen = () => {
   const [genres, setGenres] = useState<Genre[]>([]); // Khai báo state với kiểu Genre[]
 
   useEffect(() => {
-    fetchGenres();
+    const fetchGenre = async () => {
+      const data = await getAllGenre();
+      setGenres(data || []);
+    };
+    fetchGenre();
   }, []);
 
-  const fetchGenres = async () => {
-    const { data, error } = await supabase.from("Genre").select("*");
-
-    if (error) {
-      console.log("Error fetching genres:", error.message);
-    } else {
-      setGenres(data || []);
-      console.log(genres);
-    }
-  };
   return (
     <ScrollView stickyHeaderIndices={[0]} className="mt-4">
       <View className="p-2 pb-2 flex-row justify-between items-center bg-black">
@@ -284,7 +279,7 @@ const HomeScreen = () => {
                     title={item.title}
                     imageUrl={item.imageUrl}
                     bgColor={item.color}
-                  />{" "}
+                  />
                 </View>
               );
             }}

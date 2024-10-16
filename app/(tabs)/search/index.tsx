@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  StyleSheet,
   Modal,
 } from "react-native";
 import { TrackListItem } from "@/components/TrackListItem";
-import supabase from "@/utils/supabase";
 import { Genre } from "@/utils/database.types";
+import { getAllGenre } from "@/controllers/database";
 
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -21,22 +20,15 @@ const SearchScreen = () => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-  const [genres, setGenres] = useState<Genre[]>([]); // Khai báo state với kiểu Genre[]
+  const [genres, setGenres] = useState<Genre[]>([]);
 
   useEffect(() => {
-    fetchGenres();
-  }, []);
-
-  const fetchGenres = async () => {
-    const { data, error } = await supabase.from("Genre").select("*");
-
-    if (error) {
-      console.log("Error fetching genres:", error.message);
-    } else {
+    const fetchGenre = async () => {
+      const data = await getAllGenre();
       setGenres(data || []);
-      console.log(genres);
-    }
-  };
+    };
+    fetchGenre();
+  }, []);
 
   return (
     <ScrollView stickyHeaderIndices={[1]} className="mt-4">
@@ -146,5 +138,4 @@ const SearchScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({});
 export default SearchScreen;
