@@ -131,13 +131,6 @@ const LibraryScreen = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 80 }}
       />
-
-      {/* Footer Navigation */}
-      <View className="flex-row justify-around items-center p-4 border-t border-gray-700">
-        <Ionicons name="home" size={24} color="gray" />
-        <Ionicons name="search" size={24} color="gray" />
-        <Ionicons name="library" size={24} color="white" />
-      </View>
     </View>
   );
 };

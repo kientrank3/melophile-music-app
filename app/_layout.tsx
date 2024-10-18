@@ -29,6 +29,20 @@ export default function RootLayout() {
       <ThemeProvider value={DarkTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="login"
+            options={{
+              headerShown: false,
+              presentation: "modal", // Ẩn thanh tab ở trang login
+            }}
+          />
+          <Stack.Screen
+            name="signup"
+            options={{
+              headerShown: false,
+              presentation: "modal", // Ẩn thanh tab ở trang signup
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </GluestackUIProvider>

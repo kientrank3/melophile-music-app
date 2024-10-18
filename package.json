@@ -24,6 +24,7 @@
     "@gluestack-ui/overlay": "^0.1.15",
     "@gluestack-ui/toast": "^1.0.7",
     "@legendapp/motion": "^2.4.0",
+    "@react-native-community/checkbox": "^0.5.17",
     "@react-navigation/native": "^6.1.18",
     "@supabase/supabase-js": "^2.45.4",
     "babel-plugin-module-resolver": "^5.0.2",

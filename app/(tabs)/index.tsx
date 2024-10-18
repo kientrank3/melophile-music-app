@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/drawer";
 import { getAllGenre } from "@/controllers/database";
 import { Genre } from "@/utils/database.types";
+//import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import supabase from "@/utils/supabase";
 import {
   BellRing,
@@ -116,6 +118,7 @@ const albums = [
   },
 ];
 const HomeScreen = () => {
+  const router = useRouter();
   const [showDrawer, setShowDrawer] = useState(false);
   const [genres, setGenres] = useState<Genre[]>([]); // Khai báo state với kiểu Genre[]
 
@@ -183,7 +186,13 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </DrawerHeader>
           <DrawerBody className="border-t border-gray-700">
-            <TouchableOpacity className="flex-row items-center py-2">
+            <TouchableOpacity
+              className="flex-row items-center py-2"
+              onPress={() => {
+                setShowDrawer(false); // Đóng Drawer trước khi chuyển trang
+                router.push("/login"); // Điều hướng đến trang login
+              }}
+            >
               <Plus color={"#fff"} size={20} />
               <Text className="text-white font-xl pl-2">Thêm tài khoản</Text>
             </TouchableOpacity>
