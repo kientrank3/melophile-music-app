@@ -33,14 +33,14 @@ export default function RootLayout() {
             name="login"
             options={{
               headerShown: false,
-              presentation: "modal", // Ẩn thanh tab ở trang login
+              //presentation: "modal", // Ẩn thanh tab ở trang login
             }}
           />
           <Stack.Screen
             name="signup"
             options={{
               headerShown: false,
-              presentation: "modal", // Ẩn thanh tab ở trang signup
+              //presentation: "modal", // Ẩn thanh tab ở trang signup
             }}
           />
         </Stack>
