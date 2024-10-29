@@ -1,7 +1,6 @@
 import { AlbumListItem } from "@/components/AlbumListItem";
 import { ArtistItem } from "@/components/ArtistItem";
 import { TrackListGenre } from "@/components/TrackListGenre";
-import { TrackListItem } from "@/components/TrackListItem";
 import {
   Drawer,
   DrawerBackdrop,
@@ -10,11 +9,9 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from "@/components/ui/drawer";
-import { getAllGenre } from "@/controllers/database";
-import { Genre } from "@/utils/database.types";
-//import { useNavigation } from "@react-navigation/native";
+import { getAllAlbum, getAllArtist, getAllGenre } from "@/controllers/database";
+import { Album, Artist, Genre } from "@/utils/database.types";
 import { useRouter } from "expo-router";
-import supabase from "@/utils/supabase";
 import {
   BellRing,
   CirclePlay,
@@ -33,95 +30,14 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
+import { TracksList } from "@/components/TrackList";
 
-const data = [
-  {
-    id: 1,
-    name: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-  },
-  {
-    id: 2,
-    name: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-  },
-  {
-    id: 3,
-    name: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-  },
-  {
-    id: 4,
-    name: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-  },
-  {
-    id: 5,
-    name: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-  },
-  {
-    id: 6,
-    name: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-  },
-];
-
-const albums = [
-  {
-    id: 1,
-    title: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-    artistName: "Hieu Thu Hai",
-  },
-  {
-    id: 2,
-    title: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-    artistName: "Hieu Thu Hai",
-  },
-  {
-    id: 3,
-    title: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-    artistName: "Hieu Thu Hai",
-  },
-  {
-    id: 4,
-    title: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-    artistName: "Hieu Thu Hai, Vu, Vu Cat Tuong, SonTung MTP",
-  },
-  {
-    id: 5,
-    title: "Hieu Thu Hai",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-    artistName: "Hieu Thu Hai",
-  },
-  {
-    id: 6,
-    title: "Standing next to you (lofi)",
-    image:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-    artistName: "Jung Kook",
-  },
-];
 const HomeScreen = () => {
   const router = useRouter();
   const [showDrawer, setShowDrawer] = useState(false);
-  const [genres, setGenres] = useState<Genre[]>([]); // Khai báo state với kiểu Genre[]
-
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [artists, setArtists] = useState<Artist[]>([]);
   useEffect(() => {
     const fetchGenre = async () => {
       const data = await getAllGenre();
@@ -129,7 +45,20 @@ const HomeScreen = () => {
     };
     fetchGenre();
   }, []);
-
+  useEffect(() => {
+    const fetchAlbum = async () => {
+      const data = await getAllAlbum();
+      setAlbums(data || []);
+    };
+    fetchAlbum();
+  }, []);
+  useEffect(() => {
+    const fetchArtist = async () => {
+      const data = await getAllArtist();
+      setArtists(data || []);
+    };
+    fetchArtist();
+  }, []);
   return (
     <ScrollView stickyHeaderIndices={[0]} className="mt-4">
       <View className="p-2 pb-2 flex-row justify-between items-center bg-black">
@@ -220,9 +149,9 @@ const HomeScreen = () => {
         </Text>
         <View>
           <FlatList
-            data={data}
+            data={artists}
             renderItem={({ item }) => {
-              return <ArtistItem name={item.name} imageUrl={item.image} />;
+              return <ArtistItem name={item.name} imageUrl={item.imageUrl} />;
             }}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
@@ -241,9 +170,9 @@ const HomeScreen = () => {
               return (
                 <AlbumListItem
                   title={item.title}
-                  imageUrl={item.image}
-                  artistName={item.artistName}
-                  isCollab={false}
+                  imageUrl={item.imageUrl}
+                  artistName={""}
+                  isCollab={item.is_compilation}
                 />
               );
             }}
@@ -264,9 +193,9 @@ const HomeScreen = () => {
               return (
                 <AlbumListItem
                   title={item.title}
-                  imageUrl={item.image}
-                  artistName={item.artistName}
-                  isCollab={true}
+                  imageUrl={item.imageUrl}
+                  artistName={""}
+                  isCollab={item.is_compilation}
                 />
               );
             }}
@@ -303,14 +232,10 @@ const HomeScreen = () => {
           <Text className="text-white text-xl font-bold py-2">
             Nhạc thịnh hành
           </Text>
-          <CirclePlay />
+          <CirclePlay color={"white"} />
         </View>
-        <View className="bg-gray-800 rounded-xl p-1">
-          <TrackListItem />
-          <TrackListItem />
-          <TrackListItem />
-          <TrackListItem />
-          <TrackListItem />
+        <View className="bg-gray-800 rounded-xl p-1 h-80">
+          <TracksList />
         </View>
       </View>
       <View className="p-2">
@@ -324,9 +249,9 @@ const HomeScreen = () => {
               return (
                 <AlbumListItem
                   title={item.title}
-                  imageUrl={item.image}
-                  artistName={item.artistName}
-                  isCollab={true}
+                  imageUrl={item.imageUrl}
+                  artistName={""}
+                  isCollab={item.is_compilation}
                 />
               );
             }}

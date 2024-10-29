@@ -10,9 +10,9 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { TrackListItem } from "@/components/TrackListItem";
 import { Genre } from "@/utils/database.types";
 import { getAllGenre } from "@/controllers/database";
+import { TracksList } from "@/components/TrackList";
 
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -101,10 +101,10 @@ const SearchScreen = () => {
                 <Text className="color-white text-xl font-semibold p-5">
                   Các tìm kiếm gần đây
                 </Text>
-                <TrackListItem />
-                <TrackListItem />
-                <TrackListItem />
-                <TrackListItem />
+                <View className="h-1/4">
+                  <TracksList />
+                </View>
+
                 <View className="w-full justify-center items-center py-5">
                   <TouchableOpacity className="border border-white h-7 rounded-full w-56 justify-center items-center">
                     <Text className="color-white text-xs font-semibold">

@@ -1,23 +1,45 @@
 import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { Image } from "./ui/image";
-export type TracksListItemProps = {};
 
-export const TrackListItem = () => {
+import { Song } from "@/utils/database.types";
+export type TracksListItemProps = {
+  track: Song;
+  onPress: () => void;
+};
+
+export const TrackListItem = ({ track, onPress }: TracksListItemProps) => {
   return (
-    <TouchableHighlight>
+    <TouchableHighlight onPress={onPress}>
       <View className="flex-row items-center px-5 py-2">
         <View>
           <Image
             size="xs"
             source={{
-              uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+              uri: track.imageUrl,
             }}
             alt="image"
           />
         </View>
         <View className="flex-1 px-2 ">
-          <Text className="text-white text-base px-1">Anh Trai Say "Hi"</Text>
-          <Text className="text-gray-300 text-sm px-1">HieuThuHai</Text>
+          <Text className="text-white text-base px-1">{track.title}</Text>
+          <Text className="text-gray-300 text-sm px-1">{track.artist_id}</Text>
+        </View>
+        <View>
+          {/* {isActiveTrack &&
+						(playing ? (
+							<LoaderKit
+								style={styles.trackPlayingIconIndicator}
+								name="LineScaleParty"
+								color={colors.icon}
+							/>
+						) : (
+							<Ionicons
+								style={styles.trackPausedIndicator}
+								name="play"
+								size={24}
+								color={colors.icon}
+							/>
+						))} */}
         </View>
       </View>
     </TouchableHighlight>
