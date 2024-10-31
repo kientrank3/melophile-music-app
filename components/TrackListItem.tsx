@@ -1,15 +1,17 @@
-import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Image } from "./ui/image";
 
 import { Song } from "@/utils/database.types";
+import { useDispatch } from "react-redux";
+import { initTrack } from "@/redux/playSlice";
 export type TracksListItemProps = {
   track: Song;
-  onPress: () => void;
 };
 
-export const TrackListItem = ({ track, onPress }: TracksListItemProps) => {
+export const TrackListItem = ({ track }: TracksListItemProps) => {
+  const dispatch = useDispatch();
   return (
-    <TouchableHighlight onPress={onPress}>
+    <TouchableOpacity onPress={() => dispatch(initTrack(track))}>
       <View className="flex-row items-center px-5 py-2">
         <View>
           <Image
@@ -24,24 +26,7 @@ export const TrackListItem = ({ track, onPress }: TracksListItemProps) => {
           <Text className="text-white text-base px-1">{track.title}</Text>
           <Text className="text-gray-300 text-sm px-1">{track.artist_id}</Text>
         </View>
-        <View>
-          {/* {isActiveTrack &&
-						(playing ? (
-							<LoaderKit
-								style={styles.trackPlayingIconIndicator}
-								name="LineScaleParty"
-								color={colors.icon}
-							/>
-						) : (
-							<Ionicons
-								style={styles.trackPausedIndicator}
-								name="play"
-								size={24}
-								color={colors.icon}
-							/>
-						))} */}
-        </View>
       </View>
-    </TouchableHighlight>
+    </TouchableOpacity>
   );
 };

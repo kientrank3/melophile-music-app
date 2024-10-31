@@ -60,8 +60,8 @@ const HomeScreen = () => {
     fetchArtist();
   }, []);
   return (
-    <ScrollView stickyHeaderIndices={[0]} className="mt-4">
-      <View className="p-2 pb-2 flex-row justify-between items-center bg-black">
+    <ScrollView stickyHeaderIndices={[0]} className="mt-9">
+      <View className="p-2.5 pb-2.5 flex-row justify-between items-center bg-black">
         <TouchableOpacity
           onPress={() => {
             setShowDrawer(true);
@@ -94,6 +94,7 @@ const HomeScreen = () => {
         }}
         size="lg"
         anchor="left"
+        className="mt-9"
       >
         <DrawerBackdrop />
         <DrawerContent>
@@ -156,6 +157,7 @@ const HomeScreen = () => {
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -179,6 +181,7 @@ const HomeScreen = () => {
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -202,6 +205,7 @@ const HomeScreen = () => {
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -224,6 +228,7 @@ const HomeScreen = () => {
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -259,6 +264,7 @@ const HomeScreen = () => {
             horizontal={true}
             initialNumToRender={10}
             showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
           />
         </View>
       </View>

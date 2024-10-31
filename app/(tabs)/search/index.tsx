@@ -31,7 +31,7 @@ const SearchScreen = () => {
   }, []);
 
   return (
-    <ScrollView stickyHeaderIndices={[1]} className="mt-4">
+    <ScrollView stickyHeaderIndices={[1]} className="mt-9">
       <View className="p-2.5 flex-row justify-between items-center">
         <View className="flex-row items-center">
           <TouchableOpacity>
@@ -70,7 +70,7 @@ const SearchScreen = () => {
             onRequestClose={toggleModal}
           >
             <View
-              className="h-14 justify-center mt-7"
+              className="h-14 justify-center "
               style={{
                 backgroundColor: "#282828",
               }}
@@ -88,7 +88,8 @@ const SearchScreen = () => {
                   onChangeText={setSearchText}
                   autoFocus
                   placeholder="What do you want to play ?"
-                  className="text-base font-medium color-gray-400 w-10/12 h-full"
+                  placeholderTextColor={"#c4c4c4"}
+                  className="text-base font-medium color-white w-10/12 h-full"
                 />
               </View>
             </View>

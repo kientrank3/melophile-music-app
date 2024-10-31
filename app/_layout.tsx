@@ -4,8 +4,10 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import "react-native-reanimated";
+import { Provider } from "react-redux";
+import store from "@/redux/store";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -25,25 +27,27 @@ export default function RootLayout() {
 
   return (
     <GluestackUIProvider mode="dark">
-      <ThemeProvider value={DarkTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="login"
-            options={{
-              headerShown: false,
-              //presentation: "modal", // Ẩn thanh tab ở trang login
-            }}
-          />
-          <Stack.Screen
-            name="signup"
-            options={{
-              headerShown: false,
-              //presentation: "modal", // Ẩn thanh tab ở trang signup
-            }}
-          />
-        </Stack>
-      </ThemeProvider>
+      <Provider store={store}>
+        <ThemeProvider value={DarkTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="login"
+              options={{
+                headerShown: false,
+                //presentation: "modal", // Ẩn thanh tab ở trang login
+              }}
+            />
+            <Stack.Screen
+              name="signup"
+              options={{
+                headerShown: false,
+                //presentation: "modal", // Ẩn thanh tab ở trang signup
+              }}
+            />
+          </Stack>
+        </ThemeProvider>
+      </Provider>
     </GluestackUIProvider>
   );
 }
