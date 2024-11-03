@@ -11,6 +11,7 @@ export interface Song {
   artist_id: number;
   imageUrl: string;
   genre_id: number;
+  artist_name: string;
 }
 export interface Artist {
   id: number;

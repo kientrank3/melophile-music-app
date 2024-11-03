@@ -39,6 +39,16 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="player"
+              options={{
+                presentation: "card",
+                gestureEnabled: true,
+                gestureDirection: "vertical",
+                animationDuration: 400,
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="signup"
               options={{
                 headerShown: false,
