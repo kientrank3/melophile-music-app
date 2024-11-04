@@ -10,9 +10,9 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { TrackListItem } from "@/components/TrackListItem";
 import { Genre } from "@/utils/database.types";
 import { getAllGenre } from "@/controllers/database";
+import { TracksList } from "@/components/TrackList";
 
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -31,7 +31,7 @@ const SearchScreen = () => {
   }, []);
 
   return (
-    <ScrollView stickyHeaderIndices={[1]} className="mt-4">
+    <ScrollView stickyHeaderIndices={[1]} className="mt-9">
       <View className="p-2.5 flex-row justify-between items-center">
         <View className="flex-row items-center">
           <TouchableOpacity>
@@ -70,7 +70,7 @@ const SearchScreen = () => {
             onRequestClose={toggleModal}
           >
             <View
-              className="h-14 justify-center mt-7"
+              className="h-14 justify-center "
               style={{
                 backgroundColor: "#282828",
               }}
@@ -88,7 +88,8 @@ const SearchScreen = () => {
                   onChangeText={setSearchText}
                   autoFocus
                   placeholder="What do you want to play ?"
-                  className="text-base font-medium color-gray-400 w-10/12 h-full"
+                  placeholderTextColor={"#c4c4c4"}
+                  className="text-base font-medium color-white w-10/12 h-full"
                 />
               </View>
             </View>
@@ -101,10 +102,10 @@ const SearchScreen = () => {
                 <Text className="color-white text-xl font-semibold p-5">
                   Các tìm kiếm gần đây
                 </Text>
-                <TrackListItem />
-                <TrackListItem />
-                <TrackListItem />
-                <TrackListItem />
+                <View className="h-1/4">
+                  <TracksList />
+                </View>
+
                 <View className="w-full justify-center items-center py-5">
                   <TouchableOpacity className="border border-white h-7 rounded-full w-56 justify-center items-center">
                     <Text className="color-white text-xs font-semibold">
