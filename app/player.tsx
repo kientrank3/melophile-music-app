@@ -16,8 +16,9 @@ import {
   SkipForward,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Pressable, Text, View, Modal } from "react-native";
 import Slider from "@react-native-community/slider";
+import SongDetail from "@/components/SongDetail";
 import { useRouter } from "expo-router";
 const formatTime = (millis: number) => {
   const totalSeconds = Math.floor(millis / 1000);
@@ -35,6 +36,10 @@ const PlayerScreen = ({ track }: AudioPlayerProps) => {
   const intervalRef = useRef<NodeJS.Timer | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const router = useRouter();
+  const [isModalVisible, setModalVisible] = useState(false);
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
   // const loadAudio = async () => {
   //   if (track.url) {
   //     const { sound, status } = await Audio.Sound.createAsync(
@@ -164,7 +169,7 @@ const PlayerScreen = ({ track }: AudioPlayerProps) => {
           <Bluetooth color={"white"} size={18} />
         </Pressable>
         <View className="flex-row items-center justify-between w-1/4">
-          <Pressable>
+          <Pressable onPress={toggleModal}>
             <Share color={"white"} size={18} />
           </Pressable>
           <Pressable>
@@ -172,6 +177,16 @@ const PlayerScreen = ({ track }: AudioPlayerProps) => {
           </Pressable>
         </View>
       </View>
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={toggleModal}
+      >
+        <SongDetail
+          route={{ key: "someKey", name: "SongDetail", params: { songId: 1 } }}
+        />
+      </Modal>
     </LinearGradient>
   );
 };

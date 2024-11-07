@@ -24,7 +24,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 //import ImageColors from "react-native-image-colors"
 //import useImageColors from '../hooks/useImageColor';
-import { getSongWithId } from "../controllers/database";
+import { Song, Artist } from "@/utils/database.types";
+import { getSongWithId, getArtistWithId } from "../controllers/database";
 import axios from "axios";
 
 // const song = {
@@ -49,6 +50,7 @@ const options = [
 ];
 
 import { RouteProp } from "@react-navigation/native";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -58,15 +60,8 @@ type SongDetailRouteProp = RouteProp<RootStackParamList, "SongDetail">;
 
 const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const { songId } = route.params;
-  interface Song {
-    id: number;
-    title: string;
-    url: string;
-    artist: string;
-    imageUrl: string;
-  }
-
   const [song, setSong] = useState<Song | null>(null);
+  const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchSong = async () => {
@@ -78,9 +73,18 @@ const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
       console.error("Error fetching song:", error);
     }
   };
+  const fetchArtist = async () => {
+    try {
+      const data = await getArtistWithId(song?.artist_id!);
+      setArtist(data);
+    } catch (error) {
+      console.error("Error fetching artist:", error);
+    }
+  };
 
   useEffect(() => {
     fetchSong();
+    fetchArtist();
   }, []);
   if (loading) {
     return (
@@ -122,7 +126,7 @@ const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
           style={{ width: 200, height: 200 }}
         />
         <Text className="text-white text-2xl">{song.title}</Text>
-        <Text className="text-gray-400">{song.artist}</Text>
+        <Text className="text-gray-400">{artist?.name}</Text>
       </View>
       <FlatList
         data={options}

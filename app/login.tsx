@@ -11,10 +11,6 @@ import { FontAwesome, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 export default function Login() {
-  const [isModalVisible, setModalVisible] = useState(false);
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
   const router = useRouter();
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -40,10 +36,7 @@ export default function Login() {
             Sign up free
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          className="bg-zinc-950 border rounded-full flex-row items-center justify-center space-x-4 mt-4 p-5"
-          onPress={toggleModal}
-        >
+        <TouchableOpacity className="bg-zinc-950 border rounded-full flex-row items-center justify-center space-x-4 mt-4 p-5">
           <FontAwesome name="google" size={24} color="red" />
           <Text className="text-white font-bold text-center text-lg">
             Sign up with Google
@@ -66,15 +59,6 @@ export default function Login() {
             Login
           </Text>
         </TouchableOpacity>
-        {/* Modal
-        <Modal
-          visible={isModalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={toggleModal}
-        >
-          <SongDetail />
-        </Modal> */}
       </View>
     </SafeAreaView>
   );
