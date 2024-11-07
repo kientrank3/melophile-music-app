@@ -20,7 +20,8 @@ import {
   Moon,
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import ImageColorsModel from "react-native-image-colors";
+//import ImageColorsModel from "react-native-image-colors";
+import ColorThief from "colorthief";
 import axios from "axios";
 
 const song = {
@@ -84,7 +85,6 @@ export const SongDetail = () => {
   //     </View>
   //   );
   // }
-  const [primaryColor, setPrimaryColor] = useState("#000");
   const renderOption = ({ item }: any) => {
     const IconComponent = item.icon;
     return (
@@ -94,23 +94,28 @@ export const SongDetail = () => {
       </TouchableOpacity>
     );
   };
-  useEffect(() => {
-    // Đường dẫn tới hình ảnh bạn muốn phân tích
-    const imageUrl = song.imageUrl;
+  const [primaryColor, setPrimaryColor] = useState("#000");
+  const imageUrl = song.imageUrl; // URL to your song's image
 
-    // Sử dụng react-native-image-colors để lấy màu chủ đạo
-    ImageColorsModel.getColors(imageUrl, { cache: true, key: imageUrl })
-      .then((colors) => {
-        if (colors.platform === "android" && colors.dominant) {
-          setPrimaryColor(colors.dominant);
-        } else if (colors.platform === "ios" && colors.primary) {
-          setPrimaryColor(colors.primary);
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting image colors:", error);
-      });
-  }, []);
+  useEffect(() => {
+    const fetchColor = async () => {
+      try {
+        // Use ColorThief to get the dominant color
+        const colorThief = new ColorThief();
+        const [r, g, b] = await colorThief.getColor(imageUrl);
+        const rgbColor = `rgb(${r}, ${g}, ${b})`;
+
+        setPrimaryColor(rgbColor);
+      } catch (error) {
+        console.error("Error getting image color:", error);
+      }
+    };
+
+    if (imageUrl) {
+      fetchColor();
+    }
+  }, [imageUrl]);
+
   return (
     <View className="flex-1 bg-black">
       <LinearGradient
