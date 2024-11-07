@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   Modal,
 } from "react-native";
-import { SongDetail } from "@/components/SongDetail";
 import { FontAwesome, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
@@ -67,7 +66,7 @@ export default function Login() {
             Login
           </Text>
         </TouchableOpacity>
-        {/* Modal */}
+        {/* Modal
         <Modal
           visible={isModalVisible}
           animationType="slide"
@@ -75,7 +74,7 @@ export default function Login() {
           onRequestClose={toggleModal}
         >
           <SongDetail />
-        </Modal>
+        </Modal> */}
       </View>
     </SafeAreaView>
   );

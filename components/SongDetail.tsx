@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
 import {
   Text,
   View,
@@ -6,6 +7,7 @@ import {
   Image,
   ScrollView,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import {
   Heart,
@@ -20,18 +22,19 @@ import {
   Moon,
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-//import ImageColorsModel from "react-native-image-colors";
-import ColorThief from "colorthief";
+//import ImageColors from "react-native-image-colors"
+//import useImageColors from '../hooks/useImageColor';
+import { getSongWithId } from "../controllers/database";
 import axios from "axios";
 
-const song = {
-  id: 1,
-  title: "Cơn Mưa Tháng 5",
-  url: "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/song/ConMuaThang5-TungDuongTranLap-6926895.mp3?t=2024-10-15T00%3A37%3A18.407Z",
-  artist: "Hà Nhi",
-  imageUrl:
-    "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/songImage/chuaquennguoiyeucu.jpg?t=2024-10-15T00%3A42%3A41.966Z",
-};
+// const song = {
+//   id: 1,
+//   title: "Cơn Mưa Tháng 5",
+//   url: "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/song/ConMuaThang5-TungDuongTranLap-6926895.mp3?t=2024-10-15T00%3A37%3A18.407Z",
+//   artist: "Hà Nhi",
+//   imageUrl:
+//     "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/songImage/chuaquennguoiyeucu.jpg?t=2024-10-15T00%3A42%3A41.966Z",
+// };
 const options = [
   { icon: Heart, label: "Like" },
   { icon: EyeOff, label: "Hide song" },
@@ -45,8 +48,16 @@ const options = [
   { icon: Moon, label: "Sleep timer" },
 ];
 
-export const SongDetail = () => {
-  //const { songId } = route.params;
+import { RouteProp } from "@react-navigation/native";
+
+type RootStackParamList = {
+  SongDetail: { songId: number };
+};
+
+type SongDetailRouteProp = RouteProp<RootStackParamList, "SongDetail">;
+
+const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
+  const { songId } = route.params;
   interface Song {
     id: number;
     title: string;
@@ -55,36 +66,37 @@ export const SongDetail = () => {
     imageUrl: string;
   }
 
-  //const [song, setSong] = useState<Song | null>(null);
+  const [song, setSong] = useState<Song | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // const fetchSong = async () => {
-  //   try {
-  //     const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${songId}`);
-  //     const data = await response.json();
-  //     setSong(data);
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-  // useEffect(() => {
-  //   fetchSong();
-  // }, []);
-  // if(loading) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center bg-black">
-  //       <ActivityIndicator size="large" color="#00ff00" />
-  //     </View>
-  //   );
-  // }
-  // if(!song) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center bg-black">
-  //       <Text className="text-while">Song not found</Text>
-  //     </View>
-  //   );
-  // }
+  const fetchSong = async () => {
+    try {
+      const data = await getSongWithId(songId); // Gọi hàm getSongWithId để lấy dữ liệu bài hát
+      setSong(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching song:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSong();
+  }, []);
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-black">
+        <ActivityIndicator size="large" color="#00ff00" />
+      </View>
+    );
+  }
+
+  if (!song) {
+    return (
+      <View className="flex-1 justify-center items-center bg-black">
+        <Text className="text-white">Song not found</Text>
+      </View>
+    );
+  }
   const renderOption = ({ item }: any) => {
     const IconComponent = item.icon;
     return (
@@ -94,32 +106,12 @@ export const SongDetail = () => {
       </TouchableOpacity>
     );
   };
-  const [primaryColor, setPrimaryColor] = useState("#000");
-  const imageUrl = song.imageUrl; // URL to your song's image
-
-  useEffect(() => {
-    const fetchColor = async () => {
-      try {
-        // Use ColorThief to get the dominant color
-        const colorThief = new ColorThief();
-        const [r, g, b] = await colorThief.getColor(imageUrl);
-        const rgbColor = `rgb(${r}, ${g}, ${b})`;
-
-        setPrimaryColor(rgbColor);
-      } catch (error) {
-        console.error("Error getting image color:", error);
-      }
-    };
-
-    if (imageUrl) {
-      fetchColor();
-    }
-  }, [imageUrl]);
+  //const { colors, error } = useImageColors(song.imageUrl);
 
   return (
     <View className="flex-1 bg-black">
       <LinearGradient
-        colors={[primaryColor, "black"]} // Dùng màu chủ đạo từ hình ảnh
+        colors={["#fff", "black"]} // Dùng màu chủ đạo từ hình ảnh
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         className="absolute inset-0"
@@ -141,3 +133,4 @@ export const SongDetail = () => {
     </View>
   );
 };
+export default SongDetail;
