@@ -1,74 +1,93 @@
-import { Song } from "@/utils/database.types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Song } from "@/utils/database.types";
 
 interface PlayerState {
   currentTrack: Song | null;
   queue: Song[];
-  history: Song[]; // Thêm thuộc tính history
+  history: Song[];
   isPlaying: boolean;
   isVisible: boolean;
+  position: number; // Thêm vị trí phát nhạc
+  duration: number; // Thêm thời lượng bài nhạc
 }
 
 const initialState: PlayerState = {
   currentTrack: null,
   queue: [],
   history: [],
-  isPlaying: true,
-  isVisible: true,
+  isPlaying: false,
+  isVisible: false,
+  position: 0,
+  duration: 0,
 };
 
 const playerSlice = createSlice({
   name: "player",
   initialState,
   reducers: {
-    initQueue: (state, action: PayloadAction<Song[]>) => {
-      state.queue = action.payload;
-      state.history = [];
-      state.currentTrack = state.queue.length ? state.queue[0] : null;
-      state.isPlaying = true;
-      state.isVisible = true;
+    setPosition: (state, action: PayloadAction<number>) => {
+      state.position = action.payload;
     },
-    addToQueue: (state, action: PayloadAction<Song>) => {
-      state.queue.push(action.payload);
+    setDuration: (state, action: PayloadAction<number>) => {
+      state.duration = action.payload;
+    },
+    initQueue: (
+      state,
+      action: PayloadAction<{ queue: Song[]; history: Song[] }>
+    ) => {
+      const { queue, history } = action.payload;
+      state.queue = queue;
+      state.history = history;
+      state.currentTrack = null;
+      state.isPlaying = false;
+      state.isVisible = false;
+    },
+    playTrack: (state, action: PayloadAction<Song>) => {
+      // Khi phát bài mới, cập nhật currentTrack mà không thay đổi history
+      state.currentTrack = action.payload;
+      state.isPlaying = true;
+      state.isVisible = true; // Hiện FloatingPlayer
     },
     playNextTrack: (state) => {
       if (state.currentTrack) {
-        state.history.push(state.currentTrack); // Lưu track hiện tại vào history
+        state.history.push(state.currentTrack); // Di chuyển currentTrack vào history
       }
-      state.queue.shift(); // Bỏ bài hát hiện tại khỏi hàng đợi
-      state.currentTrack = state.queue.length ? state.queue[0] : null;
-      state.isPlaying = !!state.currentTrack;
+      state.queue.shift(); // Loại bỏ bài hiện tại khỏi queue
+      state.currentTrack = state.queue.length ? state.queue[0] : null; // Cập nhật bài tiếp theo
+
+      state.isPlaying = !!state.currentTrack; // Phát nhạc nếu còn bài trong queue
       state.isVisible = !!state.currentTrack;
     },
     playPreviousTrack: (state) => {
       if (state.history.length > 0) {
-        const previousTrack = state.history.pop(); // Lấy bài hát cuối cùng từ history
+        const previousTrack = state.history.pop(); // Lấy bài trước từ history
         if (previousTrack) {
-          state.queue.unshift(state.currentTrack!); // Đưa bài hiện tại vào đầu hàng đợi
-          state.currentTrack = previousTrack; // Đặt bài hát trước đó là bài hiện tại
+          state.queue.unshift(state.currentTrack!); // Thêm bài hiện tại vào đầu queue
+          state.currentTrack = previousTrack; // Cập nhật bài trước đó là currentTrack
           state.isPlaying = true;
         }
       }
-    },
-    playTrack: (state) => {
-      state.isPlaying = true;
     },
     pauseTrack: (state) => {
       state.isPlaying = false;
     },
     killTrack: (state) => {
+      state.currentTrack = null;
       state.isPlaying = false;
       state.isVisible = false;
+      state.history = [];
+      state.queue = [];
     },
   },
 });
 
 export const {
+  setPosition,
+  setDuration,
   initQueue,
-  addToQueue,
+  playTrack,
   playNextTrack,
   playPreviousTrack,
-  playTrack,
   pauseTrack,
   killTrack,
 } = playerSlice.actions;

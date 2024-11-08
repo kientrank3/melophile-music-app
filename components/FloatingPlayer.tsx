@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from "react";
+
+import Slider from "@react-native-community/slider";
 import {
   View,
   Text,
@@ -7,18 +9,12 @@ import {
   ViewStyle,
   Pressable,
 } from "react-native";
-import { Audio } from "expo-av";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import {
-  killTrack,
-  pauseTrack,
-  playTrack,
-  playNextTrack,
-  playPreviousTrack,
-} from "@/redux/playSlice";
+import { killTrack } from "@/redux/playSlice";
 import { FastForward, Pause, Play, Rewind, X } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { useAudioController } from "@/hooks/useAudioController";
 
 interface FloatingPlayerProps {
   style?: ViewStyle;
@@ -26,80 +22,18 @@ interface FloatingPlayerProps {
 
 const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
   const dispatch = useDispatch();
-  const { currentTrack, isPlaying, isVisible } = useSelector(
-    (state: RootState) => state.player
-  );
-  const sound = useRef<Audio.Sound | null>(null);
   const router = useRouter();
-  useEffect(() => {
-    const loadSound = async () => {
-      if (sound.current) {
-        await sound.current.unloadAsync();
-        sound.current = null;
-      }
-
-      if (currentTrack?.url) {
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: currentTrack.url },
-          { shouldPlay: isPlaying }
-        );
-        sound.current = newSound;
-
-        newSound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            dispatch(playNextTrack()); // Phát bài hát tiếp theo khi bài hiện tại kết thúc
-          }
-        });
-      }
-    };
-
-    if (currentTrack) {
-      loadSound();
-    }
-
-    return () => {
-      if (sound.current) {
-        sound.current.unloadAsync();
-        sound.current = null;
-      }
-    };
-  }, [currentTrack]);
-
-  const togglePlayPause = async () => {
-    if (sound.current) {
-      if (isPlaying) {
-        await sound.current.pauseAsync();
-        dispatch(pauseTrack());
-      } else {
-        await sound.current.playAsync();
-        dispatch(playTrack());
-      }
-    }
-  };
-
-  const stop = async () => {
-    if (sound.current) {
-      await sound.current.stopAsync();
-      dispatch(killTrack());
-    }
-  };
-  const playNext = async () => {
-    if (sound.current) {
-      await sound.current.stopAsync();
-      dispatch(playNextTrack());
-    }
-  };
-  const playPrevious = async () => {
-    if (sound.current) {
-      await sound.current.stopAsync();
-      dispatch(playPreviousTrack());
-    }
-  };
+  const { currentTrack, isPlaying, isVisible, position, duration } =
+    useSelector((state: RootState) => state.player);
+  const { togglePlayPause, handlePlayNext, handlePlayPrevious } =
+    useAudioController();
 
   if (!isVisible || !currentTrack) return null;
+
   const handlePress = () => {
     router.push("/player");
   };
+
   return (
     <Pressable
       onPress={handlePress}
@@ -117,7 +51,7 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
         </Text>
       </View>
       <View className="flex-row items-center">
-        <TouchableOpacity onPress={playPrevious}>
+        <TouchableOpacity onPress={handlePlayPrevious}>
           <Rewind color={"white"} size={20} />
         </TouchableOpacity>
         <TouchableOpacity onPress={togglePlayPause} className="mx-2">
@@ -127,10 +61,14 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
             <Play color={"white"} size={20} />
           )}
         </TouchableOpacity>
-        <TouchableOpacity onPress={playNext}>
+        <TouchableOpacity onPress={handlePlayNext}>
           <FastForward color={"white"} size={20} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={stop}>
+        <TouchableOpacity
+          onPress={() => {
+            dispatch(killTrack());
+          }}
+        >
           <X color={"white"} size={20} />
         </TouchableOpacity>
       </View>

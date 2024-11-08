@@ -15,81 +15,38 @@ import {
   SkipBack,
   SkipForward,
 } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
+import { colors } from "@/constants/Tokens";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useAudioController } from "@/hooks/useAudioController";
 const formatTime = (millis: number) => {
   const totalSeconds = Math.floor(millis / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 };
-type AudioPlayerProps = {
-  track: Song;
-};
-const PlayerScreen = ({ track }: AudioPlayerProps) => {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [duration, setDuration] = useState(0);
-  const [position, setPosition] = useState(0);
-  const intervalRef = useRef<NodeJS.Timer | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+
+const PlayerScreen = () => {
   const router = useRouter();
-  // const loadAudio = async () => {
-  //   if (track.url) {
-  //     const { sound, status } = await Audio.Sound.createAsync(
-  //       { uri: track.url },
-  //       {
-  //         shouldPlay: false,
-  //       },
-  //       onPlaybackStatusUpdate
-  //     );
-  //     setSound(sound);
-  //     if (status.isLoaded) {
-  //       setDuration(status.durationMillis || 0);
-  //     }
-  //   }
-  // };
+  const { togglePlayPause, handlePlayNext, handlePlayPrevious, handleSeek } =
+    useAudioController();
+  const { currentTrack, isPlaying, position, duration } = useSelector(
+    (state: RootState) => state.player
+  );
 
-  // const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-  //   if (status.isLoaded) {
-  //     setPosition(status.positionMillis || 0);
-  //     setDuration(status.durationMillis || 0);
-  //   }
-  // };
+  if (!currentTrack) return null;
 
-  // useEffect(() => {
-  //   loadAudio();
-
-  //   return () => {
-  //     if (sound) {
-  //       sound.unloadAsync();
-  //     }
-  //     if (intervalRef.current) {
-  //       clearInterval(intervalRef.current as unknown as number);
-  //     }
-  //   };
-  // }, [track]); // Thêm track vào mảng phụ thuộc để tải lại khi bài nhạc thay đổi
-
-  const handleSliderValueChange = async (value: number) => {
-    if (sound) {
-      await sound.setPositionAsync(value);
-    }
-  };
-  const handlePlayPause = async () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-    } else {
-      setIsPlaying(true);
-    }
-  };
   return (
     <LinearGradient
       style={{ flex: 1 }}
-      className="mt-8 items-center"
-      colors={["#000", "gray", "black"]}
+      className="mt-8 items-center "
+      colors={[colors.background, "white", "black", "black"]}
     >
-      <View className="flex-row justify-between px-4 items-center w-full">
+      <View className="flex-row justify-between px-4 items-center w-full mt-8">
         <Pressable
           onPress={() => {
             router.back();
@@ -97,26 +54,28 @@ const PlayerScreen = ({ track }: AudioPlayerProps) => {
         >
           <ChevronDown color={"white"} size={22} />
         </Pressable>
-        <Text className="text-white text-md">Hello Kien</Text>
+        <Text className="text-white text-md">Player Screen</Text>
         <Pressable>
           <Ellipsis color="white" size={22} />
         </Pressable>
       </View>
       <View className="w-full h-96 items-center pt-12">
         <Image
-          alt="image"
           source={{
-            uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+            uri: currentTrack?.imageUrl,
           }}
+          resizeMode="contain"
           className="w-[80%] h-full"
         />
       </View>
       <View className="flex-row justify-between w-full items-center px-5 pt-4">
         <View>
           <Text numberOfLines={1} className="text-white text-2xl font-semibold">
-            Sao Hạng A
+            {currentTrack?.title}
           </Text>
-          <Text className="text-slate-400 pt-1 text-xs">HIEU THU HAI</Text>
+          <Text className="text-slate-400 pt-1 text-md">
+            {currentTrack?.artist_name}
+          </Text>
         </View>
         <Pressable className="pt-5">
           <Heart color={"white"} size={22} strokeWidth={1.5} />
@@ -128,7 +87,7 @@ const PlayerScreen = ({ track }: AudioPlayerProps) => {
           minimumValue={0}
           maximumValue={duration}
           value={position}
-          onSlidingComplete={handleSliderValueChange}
+          onSlidingComplete={handleSeek}
           minimumTrackTintColor="#FFFFFF"
           maximumTrackTintColor="#CCCCCC"
           thumbTintColor="#FFFFFF"
@@ -142,17 +101,17 @@ const PlayerScreen = ({ track }: AudioPlayerProps) => {
         <Pressable>
           <Shuffle size={20} color={"white"} />
         </Pressable>
-        <Pressable>
+        <Pressable onPress={handlePlayPrevious}>
           <SkipBack size={32} fill={"white"} color={"white"} />
         </Pressable>
-        <Pressable onPress={handlePlayPause}>
+        <Pressable onPress={togglePlayPause}>
           {isPlaying ? (
-            <CirclePlay color={"white"} size={60} strokeWidth={1.5} />
-          ) : (
             <CirclePause color={"white"} size={60} strokeWidth={1.5} />
+          ) : (
+            <CirclePlay color={"white"} size={60} strokeWidth={1.5} />
           )}
         </Pressable>
-        <Pressable>
+        <Pressable onPress={handlePlayNext}>
           <SkipForward size={32} fill={"white"} color={"white"} />
         </Pressable>
         <Pressable>
