@@ -75,3 +75,45 @@ export const getAllAlbum = async () => {
     throw error;
   }
 };
+export const getSongWithId = async (id: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Song")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.log("Error fetching song:", error);
+    throw error;
+  }
+};
+export const getArtistWithId = async (id: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Artist")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.log("Error fetching artist:", error);
+    throw error;
+  }
+};
+export const getAlbumWithId = async (id: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Album")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.log("Error fetching album:", error);
+    throw error;
+  }
+};
