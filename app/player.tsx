@@ -1,5 +1,3 @@
-import { Song } from "@/utils/database.types";
-import { Audio, AVPlaybackStatus } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   Bluetooth,
@@ -16,11 +14,11 @@ import {
   SkipForward,
 } from "lucide-react-native";
 import React from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Pressable, Text, View, TouchableOpacity } from "react-native";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
 import { colors } from "@/constants/Tokens";
-import { useSelector } from "react-redux";
+import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useAudioController } from "@/hooks/useAudioController";
 const formatTime = (millis: number) => {
@@ -35,16 +33,16 @@ const PlayerScreen = () => {
   const { togglePlayPause, handlePlayNext, handlePlayPrevious, handleSeek } =
     useAudioController();
   const { currentTrack, isPlaying, position, duration } = useSelector(
-    (state: RootState) => state.player
+    (state: RootState) => state.player,
+    shallowEqual
   );
-
   if (!currentTrack) return null;
 
   return (
     <LinearGradient
       style={{ flex: 1 }}
       className="mt-8 items-center "
-      colors={[colors.background, "white", "black", "black"]}
+      colors={[colors.background, "black", "black", "black"]}
     >
       <View className="flex-row justify-between px-4 items-center w-full mt-8">
         <Pressable
@@ -98,37 +96,37 @@ const PlayerScreen = () => {
         </View>
       </View>
       <View className="flex-row items-center justify-between w-full px-5 pt-2">
-        <Pressable>
+        <TouchableOpacity>
           <Shuffle size={20} color={"white"} />
-        </Pressable>
-        <Pressable onPress={handlePlayPrevious}>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handlePlayPrevious}>
           <SkipBack size={32} fill={"white"} color={"white"} />
-        </Pressable>
-        <Pressable onPress={togglePlayPause}>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={togglePlayPause}>
           {isPlaying ? (
             <CirclePause color={"white"} size={60} strokeWidth={1.5} />
           ) : (
             <CirclePlay color={"white"} size={60} strokeWidth={1.5} />
           )}
-        </Pressable>
-        <Pressable onPress={handlePlayNext}>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handlePlayNext}>
           <SkipForward size={32} fill={"white"} color={"white"} />
-        </Pressable>
-        <Pressable>
+        </TouchableOpacity>
+        <TouchableOpacity>
           <RefreshCcwDot size={20} color={"white"} />
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <View className="flex-row w-full px-5 items-center justify-between pt-2">
-        <Pressable>
+        <TouchableOpacity>
           <Bluetooth color={"white"} size={18} />
-        </Pressable>
+        </TouchableOpacity>
         <View className="flex-row items-center justify-between w-1/4">
-          <Pressable>
+          <TouchableOpacity>
             <Share color={"white"} size={18} />
-          </Pressable>
-          <Pressable>
+          </TouchableOpacity>
+          <TouchableOpacity>
             <ListVideo color={"white"} size={20} />
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
     </LinearGradient>

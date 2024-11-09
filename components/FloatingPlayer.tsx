@@ -1,6 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
-import Slider from "@react-native-community/slider";
 import {
   View,
   Text,
@@ -9,10 +8,9 @@ import {
   ViewStyle,
   Pressable,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { killTrack } from "@/redux/playSlice";
-import { FastForward, Pause, Play, Rewind, X } from "lucide-react-native";
+import { Pause, Play, X } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useAudioController } from "@/hooks/useAudioController";
 
@@ -21,15 +19,19 @@ interface FloatingPlayerProps {
 }
 
 const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
-  const dispatch = useDispatch();
   const router = useRouter();
-  const { currentTrack, isPlaying, isVisible, position, duration } =
-    useSelector((state: RootState) => state.player);
-  const { togglePlayPause, handlePlayNext, handlePlayPrevious } =
-    useAudioController();
+  const { currentTrack, isPlaying, isVisible } = useSelector(
+    (state: RootState) => state.player,
+    shallowEqual
+  );
+  const {
+    togglePlayPause,
+    handlePlayNext,
+    handlePlayPrevious,
+    handleKillTrack,
+  } = useAudioController();
 
   if (!isVisible || !currentTrack) return null;
-
   const handlePress = () => {
     router.push("/player");
   };
@@ -51,25 +53,15 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
         </Text>
       </View>
       <View className="flex-row items-center">
-        <TouchableOpacity onPress={handlePlayPrevious}>
-          <Rewind color={"white"} size={20} />
-        </TouchableOpacity>
         <TouchableOpacity onPress={togglePlayPause} className="mx-2">
           {isPlaying ? (
-            <Pause color={"white"} size={20} />
+            <Pause fill={"white"} color={"white"} size={22} />
           ) : (
-            <Play color={"white"} size={20} />
+            <Play fill={"white"} color={"white"} size={22} />
           )}
         </TouchableOpacity>
-        <TouchableOpacity onPress={handlePlayNext}>
-          <FastForward color={"white"} size={20} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            dispatch(killTrack());
-          }}
-        >
-          <X color={"white"} size={20} />
+        <TouchableOpacity onPress={handleKillTrack}>
+          <X color={"white"} size={22} />
         </TouchableOpacity>
       </View>
     </Pressable>

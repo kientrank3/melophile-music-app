@@ -20,7 +20,7 @@ export default function TabLayout() {
             paddingBottom: 5,
             paddingTop: 10,
             backgroundColor: "rgba(0,0,0,0.85)",
-            height: 50,
+            height: 45,
           },
         }}
       >
@@ -28,21 +28,21 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
-            tabBarIcon: ({ color }) => <House size={22} color={color} />,
+            tabBarIcon: ({ color }) => <House size={21} color={color} />,
           }}
         />
         <Tabs.Screen
           name="search"
           options={{
             title: "Search",
-            tabBarIcon: ({ color }) => <Search size={22} color={color} />,
+            tabBarIcon: ({ color }) => <Search size={21} color={color} />,
           }}
         />
         <Tabs.Screen
           name="library"
           options={{
             title: "Library",
-            tabBarIcon: ({ color }) => <Library size={22} color={color} />,
+            tabBarIcon: ({ color }) => <Library size={21} color={color} />,
           }}
         />
       </Tabs>
@@ -51,7 +51,7 @@ export default function TabLayout() {
           position: "absolute",
           left: 8,
           right: 8,
-          bottom: 55,
+          bottom: 50,
           zIndex: 1,
         }}
       />
