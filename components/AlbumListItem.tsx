@@ -1,12 +1,18 @@
 import { Album } from "@/utils/database.types";
+import { Href, useRouter } from "expo-router";
 import { Text, Image, TouchableOpacity, View } from "react-native";
 
 type AlbumProps = {
   album: Album;
 };
 export const AlbumListItem: React.FC<AlbumProps> = ({ album }) => {
+  const router = useRouter();
+
+  const handlePress = () => {
+    router.push(`/playlist/${album.id}` as unknown as Href);
+  };
   return (
-    <TouchableOpacity className="p-2 w-32">
+    <TouchableOpacity onPress={handlePress} className="p-2 w-32">
       <Image
         source={{ uri: album.imageUrl }}
         className="w-28 h-28 rounded-[10px]"

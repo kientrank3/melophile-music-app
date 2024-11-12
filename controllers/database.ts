@@ -1,4 +1,4 @@
-import { Artist, Song } from "@/utils/database.types";
+import { Album, Artist, Song } from "@/utils/database.types";
 import supabase from "@/utils/supabase";
 
 export const getAllGenre = async () => {
@@ -191,3 +191,47 @@ export const getAlbumWithId = async (id: number) => {
     throw error;
   }
 };
+
+export async function getAlbumsByGenre(genreId: number): Promise<Album[]> {
+  const { data, error } = await supabase
+    .from("Album")
+    .select(
+      `
+      id AS album_id,
+      title AS album_title,
+      imageUrl AS album_imageUrl,
+      genre_id,
+      create_date,
+      is_compilation,
+      Genre (
+        id,
+        title AS genre_title,
+        imageUrl AS genre_imageUrl,
+        color AS genre_color
+      )
+    `
+    )
+    .eq("genre_id", genreId);
+
+  if (error) {
+    console.error("Error fetching albums by genre:", error);
+    throw error;
+  }
+
+  // Chuyển đổi dữ liệu thành mảng các đối tượng Album
+  const albums: Album[] = data.map((row: any) => ({
+    id: row.album_id,
+    title: row.album_title,
+    imageUrl: row.album_imageUrl,
+    genre_id: row.genre_id,
+    genre_title: row.Genre.title,
+    genre_imageUrl: row.Genre.imageUrl,
+    genre_color: row.Genre.color,
+    created_date: row.create_date
+      ? new Date(row.create_date).toISOString()
+      : "",
+    is_compilation: row.is_compilation,
+  }));
+
+  return albums;
+}
