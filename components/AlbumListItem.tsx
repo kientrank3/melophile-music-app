@@ -1,27 +1,23 @@
+import { Album } from "@/utils/database.types";
 import { Text, Image, TouchableOpacity, View } from "react-native";
 
 type AlbumProps = {
-  title: string;
-  imageUrl: string;
-  artistName: string;
-  isCollab: boolean;
+  album: Album;
 };
-export const AlbumListItem: React.FC<AlbumProps> = ({
-  title,
-  imageUrl,
-  artistName,
-  isCollab = false,
-}) => {
+export const AlbumListItem: React.FC<AlbumProps> = ({ album }) => {
   return (
     <TouchableOpacity className="p-2 w-32">
-      <Image source={{ uri: imageUrl }} className="w-28 h-28 rounded-[10px]" />
-      {isCollab ? (
+      <Image
+        source={{ uri: album.imageUrl }}
+        className="w-28 h-28 rounded-[10px]"
+      />
+      {album.is_compilation ? (
         <Text
-          className="text-xs text-gray-400 font-semibold pt-2"
+          className="text-xs text-white font-semibold pt-2"
           numberOfLines={2}
           ellipsizeMode="tail"
         >
-          {artistName}
+          {album.title}
         </Text>
       ) : (
         <View>
@@ -30,14 +26,14 @@ export const AlbumListItem: React.FC<AlbumProps> = ({
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {title}
+            {album.title}
           </Text>
           <Text
             className="text-xs text-gray-400 font-semibold "
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {artistName}
+            {album.created_date}
           </Text>
         </View>
       )}

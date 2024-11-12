@@ -102,13 +102,13 @@ const SearchScreen = () => {
                 <Text className="color-white text-xl font-semibold p-5">
                   Các tìm kiếm gần đây
                 </Text>
-                <View className="h-1/4">
+                <View className="h-1/2">
                   <TracksList />
                 </View>
 
                 <View className="w-full justify-center items-center py-5">
-                  <TouchableOpacity className="border border-white h-7 rounded-full w-56 justify-center items-center">
-                    <Text className="color-white text-xs font-semibold">
+                  <TouchableOpacity className="border border-white h-10 rounded-full w-80 justify-center items-center">
+                    <Text className="color-white text-md font-semibold">
                       Xoá nội dung tìm kiếm gần đây
                     </Text>
                   </TouchableOpacity>

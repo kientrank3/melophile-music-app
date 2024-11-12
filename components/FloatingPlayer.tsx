@@ -24,12 +24,7 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
     (state: RootState) => state.player,
     shallowEqual
   );
-  const {
-    togglePlayPause,
-    handlePlayNext,
-    handlePlayPrevious,
-    handleKillTrack,
-  } = useAudioController();
+  const { togglePlayPause, handleKillTrack } = useAudioController();
 
   if (!isVisible || !currentTrack) return null;
   const handlePress = () => {
@@ -39,17 +34,20 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
   return (
     <Pressable
       onPress={handlePress}
-      className="absolute bottom-20 left-4 right-4 bg-gray-900 p-3 rounded-lg flex-row items-center"
+      className="absolute bottom-20 left-4 right-4 bg-black py-2 px-3 rounded-lg flex-row items-center"
       style={style}
     >
       <Image
         source={{ uri: currentTrack.imageUrl }}
-        className="w-10 h-10 rounded mr-4"
+        className="w-12 h-12 rounded mr-4"
         alt="image"
       />
       <View className="flex-1">
         <Text className="text-white text-md font-semibold" numberOfLines={1}>
           {currentTrack.title}
+        </Text>
+        <Text className="text-gray-400 text-xs " numberOfLines={1}>
+          {currentTrack.artist_name}
         </Text>
       </View>
       <View className="flex-row items-center">

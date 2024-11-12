@@ -60,7 +60,11 @@ const HomeScreen = () => {
     fetchArtist();
   }, []);
   return (
-    <ScrollView stickyHeaderIndices={[0]} className="mt-9">
+    <ScrollView
+      stickyHeaderIndices={[0]}
+      className="mt-9"
+      nestedScrollEnabled={true}
+    >
       <View className="p-2.5 pb-2.5 flex-row justify-between items-center bg-black">
         <TouchableOpacity
           onPress={() => {
@@ -157,7 +161,6 @@ const HomeScreen = () => {
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -169,19 +172,11 @@ const HomeScreen = () => {
           <FlatList
             data={albums}
             renderItem={({ item }) => {
-              return (
-                <AlbumListItem
-                  title={item.title}
-                  imageUrl={item.imageUrl}
-                  artistName={""}
-                  isCollab={item.is_compilation}
-                />
-              );
+              return <AlbumListItem album={item} />;
             }}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -193,19 +188,11 @@ const HomeScreen = () => {
           <FlatList
             data={albums}
             renderItem={({ item }) => {
-              return (
-                <AlbumListItem
-                  title={item.title}
-                  imageUrl={item.imageUrl}
-                  artistName={""}
-                  isCollab={item.is_compilation}
-                />
-              );
+              return <AlbumListItem album={item} />;
             }}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -228,7 +215,6 @@ const HomeScreen = () => {
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
           />
         </View>
       </View>
@@ -251,20 +237,12 @@ const HomeScreen = () => {
           <FlatList
             data={albums}
             renderItem={({ item }) => {
-              return (
-                <AlbumListItem
-                  title={item.title}
-                  imageUrl={item.imageUrl}
-                  artistName={""}
-                  isCollab={item.is_compilation}
-                />
-              );
+              return <AlbumListItem album={item} />;
             }}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
             initialNumToRender={10}
             showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
           />
         </View>
       </View>

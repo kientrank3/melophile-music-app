@@ -26,3 +26,24 @@ export interface Album {
   is_compilation: boolean;
   created_date: string;
 }
+export interface User {
+  id: number;
+  user_name: string;
+  phone_number?: string;
+  email?: string;
+  name?: string;
+  password: string;
+}
+export interface FavoriteSong {
+  id: number;
+  user_id: number;
+  song_id: number;
+}
+export interface SongAlbum {
+  song_id: number;
+  album_id: number;
+}
+export interface AlbumCollab {
+  artist_id: number;
+  album_id: number;
+}
