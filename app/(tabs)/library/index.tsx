@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { LibraryParamList } from "./type"; // Import LibraryParamList
 import {
   View,
   Text,
@@ -10,7 +9,11 @@ import {
   ListRenderItem,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+type LibraryParamList = {
+  index: undefined;
+  "userLibrary/index": undefined;
+  "userSettings/index": undefined;
+};
 type LibraryItem = {
   id: string;
   type: "playlist" | "artist" | "song";
