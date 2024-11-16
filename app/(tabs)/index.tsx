@@ -9,8 +9,13 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from "@/components/ui/drawer";
-import { getAllAlbum, getAllArtist, getAllGenre } from "@/controllers/database";
-import { Album, Artist, Genre } from "@/utils/database.types";
+import {
+  fetchRandomAlbums,
+  fetchRandomArtists,
+  fetchRandomGenres,
+  fetchRandomSongs,
+} from "@/controllers/database";
+import { Album, Artist, Genre, Song } from "@/utils/database.types";
 import { useRouter } from "expo-router";
 import {
   BellRing,
@@ -38,31 +43,39 @@ const HomeScreen = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
+  const [songs, setSongs] = useState<Song[]>([]);
   useEffect(() => {
     const fetchGenre = async () => {
-      const data = await getAllGenre();
+      const data = await fetchRandomGenres(10);
       setGenres(data || []);
     };
     fetchGenre();
   }, []);
   useEffect(() => {
     const fetchAlbum = async () => {
-      const data = await getAllAlbum();
+      const data = await fetchRandomAlbums(5);
       setAlbums(data || []);
     };
     fetchAlbum();
   }, []);
   useEffect(() => {
     const fetchArtist = async () => {
-      const data = await getAllArtist();
+      const data = await fetchRandomArtists(10);
       setArtists(data || []);
     };
     fetchArtist();
   }, []);
+  useEffect(() => {
+    const fetchSong = async () => {
+      const data = await fetchRandomSongs(5);
+      setSongs(data || []);
+    };
+    fetchSong();
+  }, []);
   return (
     <ScrollView
       stickyHeaderIndices={[0]}
-      className="mt-9"
+      className=""
       nestedScrollEnabled={true}
     >
       <View className="p-2.5 pb-2.5 flex-row justify-between items-center bg-black">
@@ -91,6 +104,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+      {/* Drawer Menu */}
       <Drawer
         isOpen={showDrawer}
         onClose={() => {
@@ -98,7 +112,7 @@ const HomeScreen = () => {
         }}
         size="lg"
         anchor="left"
-        className="mt-9"
+        className=""
       >
         <DrawerBackdrop />
         <DrawerContent>
@@ -226,7 +240,7 @@ const HomeScreen = () => {
           <CirclePlay color={"white"} />
         </View>
         <View className="bg-gray-800 rounded-xl p-1 h-80">
-          <TracksList />
+          <TracksList songs={songs} sroll={false} nestedScroll={true} />
         </View>
       </View>
       <View className="p-2">

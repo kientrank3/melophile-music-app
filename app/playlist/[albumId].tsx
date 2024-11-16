@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { getAlbumWithId, getSongsByAlbum } from "@/controllers/database";
+import { fetchSongsByAlbum, getAlbumWithId } from "@/controllers/database";
 import { Album, Song } from "@/utils/database.types";
 import {
   ChevronDown,
@@ -10,7 +10,6 @@ import {
   CirclePlus,
   Download,
   EllipsisVertical,
-  ShowerHead,
   Shuffle,
 } from "lucide-react-native";
 import { RootState } from "@/redux/store";
@@ -48,14 +47,14 @@ const PlaylistScreen = () => {
   useEffect(() => {
     const fetchSong = async () => {
       if (album) {
-        const data = await getSongsByAlbum(album.id);
+        const data = await fetchSongsByAlbum(album.id);
         setTrack(data || []);
       }
     };
     fetchSong();
-  }, []);
+  }, [album?.id]);
   return (
-    <ScrollView className="mt-9">
+    <ScrollView className="">
       <View className="flex justify-center items-center">
         <TouchableOpacity
           className="w-full px-2 mb-[-12px]"
@@ -119,7 +118,7 @@ const PlaylistScreen = () => {
         </View>
       </View>
       <View className="pb-10">
-        <TracksList />
+        <TracksList songs={tracks} sroll={false} nestedScroll={true} />
       </View>
     </ScrollView>
   );

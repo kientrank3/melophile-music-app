@@ -11,6 +11,7 @@ export const getAllGenre = async () => {
     throw error;
   }
 };
+
 export const getAllSong = async () => {
   try {
     const { data, error } = await supabase.from("Song").select("*");
@@ -21,20 +22,7 @@ export const getAllSong = async () => {
     throw error;
   }
 };
-export const get10Song = async () => {
-  const { data, error } = await supabase
-    .from("Song")
-    .select("*")
-    .order("RANDOM()") // Lấy ngẫu nhiên các bản ghi
-    .limit(10);
 
-  if (error) {
-    console.error("Error fetching data:", error);
-    return [];
-  }
-
-  return data || [];
-};
 export const getSongsWithArtist = async (): Promise<
   (Song & { artist_name: string })[]
 > => {
@@ -65,6 +53,7 @@ export const getAllArtist = async () => {
     throw error;
   }
 };
+
 export const getAllAlbum = async () => {
   try {
     const { data, error } = await supabase.from("Album").select("*");
@@ -75,40 +64,44 @@ export const getAllAlbum = async () => {
     throw error;
   }
 };
-export async function getSongsByAlbum(albumId: number): Promise<Song[]> {
+
+export async function fetchSongsByAlbum(
+  albumId: number
+): Promise<(Song & { artist_name: string })[]> {
   const { data, error } = await supabase
     .from("SongAlbum")
     .select(
       `
-      song_id: song_id,
-      Song (
-        id,
-        title,
-        url,
-        imageUrl
+    album_id,
+    song_id,
+    Song (
+      id,
+      title,
+      url,
+      imageUrl,
+      artist_id,
+      genre_id,
+      Artist (
+        name
       )
-    `
+    )
+  `
     )
     .eq("album_id", albumId);
-
   if (error) {
     console.error("Error fetching songs by album:", error);
     throw error;
   }
 
-  // Chuyển đổi dữ liệu thành mảng các đối tượng Song
-  const songs: Song[] = data.map((row: any) => ({
+  return data.map((row: any) => ({
     id: row.Song.id,
     title: row.Song.title,
     url: row.Song.url,
     imageUrl: row.Song.imageUrl,
     artist_id: row.Song.artist_id,
-    album_id: row.Song.album_id,
     genre_id: row.Song.genre_id,
-    artist_name: row.Song.artist_name || "Unknown",
+    artist_name: row.Song.Artist?.name || "Unknown Artist", // Giá trị mặc định nếu thiếu artist_name
   }));
-
-  return songs;
 }
 export const getSongWithId = async (id: number) => {
   try {
@@ -235,3 +228,59 @@ export async function getAlbumsByGenre(genreId: number): Promise<Album[]> {
 
   return albums;
 }
+
+export const fetchRandomSongs = async (limit: number): Promise<Song[]> => {
+  const { data, error } = await supabase.rpc("get_random_songs", {
+    limit_count: limit,
+  });
+
+  if (error) {
+    console.error("Error fetching random songs:", error);
+    return [];
+  }
+  return data.map((song: any) => ({
+    id: song.id,
+    title: song.title,
+    url: song.url,
+    artist_id: song.artist_id,
+    imageUrl: song.imageurl,
+    genre_id: song.genre_id,
+    artist_name: song.artist_name,
+  }));
+};
+export const fetchRandomAlbums = async (limit: number) => {
+  const { data, error } = await supabase.rpc("get_random_albums", {
+    limit_count: limit,
+  });
+
+  if (error) {
+    console.error("Error fetching random albums:", error);
+    return [];
+  }
+
+  return data;
+};
+export const fetchRandomGenres = async (limit: number) => {
+  const { data, error } = await supabase.rpc("get_random_genres", {
+    limit_count: limit,
+  });
+
+  if (error) {
+    console.error("Error fetching random genres:", error);
+    return [];
+  }
+
+  return data;
+};
+export const fetchRandomArtists = async (limit: number) => {
+  const { data, error } = await supabase.rpc("get_random_artists", {
+    limit_count: limit,
+  });
+
+  if (error) {
+    console.error("Error fetching random artist:", error);
+    return [];
+  }
+
+  return data;
+};

@@ -41,7 +41,7 @@ const PlayerScreen = () => {
   return (
     <LinearGradient
       style={{ flex: 1 }}
-      className="mt-8 items-center "
+      className="items-center "
       colors={[colors.background, "black", "black", "black"]}
     >
       <View className="flex-row justify-between px-4 items-center w-full mt-8">
@@ -59,9 +59,11 @@ const PlayerScreen = () => {
       </View>
       <View className="w-full h-96 items-center pt-12">
         <Image
-          source={{
-            uri: currentTrack?.imageUrl,
-          }}
+          source={
+            currentTrack.imageUrl
+              ? { uri: currentTrack.imageUrl }
+              : require("../assets/images/unknown_track.png")
+          }
           resizeMode="contain"
           className="w-[80%] h-full"
         />

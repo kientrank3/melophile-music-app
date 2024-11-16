@@ -13,9 +13,11 @@ export const TrackListItem = ({ track, onPress }: TracksListItemProps) => {
         <View>
           <Image
             size="xs"
-            source={{
-              uri: track.imageUrl,
-            }}
+            source={
+              track.imageUrl
+                ? { uri: track.imageUrl }
+                : require("../assets/images/unknown_track.png")
+            }
             alt="image"
           />
         </View>

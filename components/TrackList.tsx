@@ -14,8 +14,12 @@ import { RootState } from "@/redux/store";
 import { useAudioController } from "@/hooks/useAudioController";
 import { useRouter } from "expo-router";
 import { Audio } from "expo-av";
-
-export const TracksList = () => {
+export type TracksListProps = {
+  songs: Song[];
+  sroll: boolean;
+  nestedScroll: boolean;
+};
+export const TracksList = ({ songs, sroll, nestedScroll }: TracksListProps) => {
   const [tracks, setTracks] = useState<Song[]>([]);
   const dispatch = useDispatch();
   const { currentTrack, position, isPlaying } = useSelector(
@@ -28,18 +32,14 @@ export const TracksList = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchSongs = async () => {
-      const data = await getSongsWithArtist();
-      setTracks(data || []);
-      if (data && data.length > 0) {
-        dispatch(initQueue({ queue: data, history: [] })); // Khởi tạo danh sách vào hàng đợi
-      }
-    };
-    fetchSongs();
-  }, []);
+    if (songs && songs.length > 0) {
+      setTracks(songs);
+      dispatch(initQueue({ queue: songs, history: [] }));
+    }
+  }, [songs, dispatch]);
+
   useEffect(() => {
     const loadSound = async () => {
-      // Kiểm tra nếu không có track hoặc âm thanh đã được tải
       if (!currentTrack) return;
 
       // Nếu đã có âm thanh, dừng và giải phóng
@@ -119,7 +119,8 @@ export const TracksList = () => {
         keyExtractor={(item) => item.id.toString()}
         style={{ flex: 1 }}
         horizontal={false}
-        nestedScrollEnabled={true}
+        nestedScrollEnabled={nestedScroll}
+        scrollEnabled={sroll}
       />
     </View>
   );

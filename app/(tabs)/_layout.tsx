@@ -12,15 +12,12 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             fontSize: fontSize.xs,
             fontWeight: "500",
-            paddingTop: 5,
           },
           headerShown: false,
           tabBarStyle: {
             position: "absolute",
-            paddingBottom: 5,
-            paddingTop: 10,
             backgroundColor: "rgba(0,0,0,0.85)",
-            height: 48,
+            height: 50,
           },
         }}
       >
@@ -51,7 +48,7 @@ export default function TabLayout() {
           position: "absolute",
           left: 8,
           right: 8,
-          bottom: 49,
+          bottom: 51,
           zIndex: 1,
         }}
       />

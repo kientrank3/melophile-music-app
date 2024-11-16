@@ -10,13 +10,14 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { Genre } from "@/utils/database.types";
-import { getAllGenre } from "@/controllers/database";
+import { Genre, Song } from "@/utils/database.types";
+import { fetchRandomSongs, getAllGenre } from "@/controllers/database";
 import { TracksList } from "@/components/TrackList";
 
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [songs, setSongs] = useState<Song[]>([]);
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -29,9 +30,16 @@ const SearchScreen = () => {
     };
     fetchGenre();
   }, []);
+  useEffect(() => {
+    const fetchSongs = async () => {
+      const data = await fetchRandomSongs(10);
+      setSongs(data || []);
+    };
+    fetchSongs();
+  }, []);
 
   return (
-    <ScrollView stickyHeaderIndices={[1]} className="mt-9">
+    <ScrollView stickyHeaderIndices={[1]} className="">
       <View className="p-2.5 flex-row justify-between items-center">
         <View className="flex-row items-center">
           <TouchableOpacity>
@@ -94,16 +102,12 @@ const SearchScreen = () => {
               </View>
             </View>
             <View className="h-full bg-black">
-              {/* <View style={{alignItems:'center', justifyContent:'center',height:'80%',padding:30}}>
-              <Text style={{color:'#fff', fontSize:18,fontWeight:700,padding:10}}>Phát nội dung bạn thích</Text>
-              <Text style={{color:'#c4c4c4', fontSize:15,fontWeight:500}}>Tìm kiếm nghệ sĩ, bài hát, podcasts và nhiều nội </Text><Text style={{color:'#c4c4c4', fontSize:15,fontWeight:500}}> dung khác</Text>
-            </View> */}
               <View>
                 <Text className="color-white text-xl font-semibold p-5">
                   Các tìm kiếm gần đây
                 </Text>
                 <View className="h-1/2">
-                  <TracksList />
+                  <TracksList songs={songs} sroll={true} nestedScroll={true} />
                 </View>
 
                 <View className="w-full justify-center items-center py-5">
