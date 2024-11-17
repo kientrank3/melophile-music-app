@@ -13,14 +13,23 @@ import {
   SkipBack,
   SkipForward,
 } from "lucide-react-native";
-import React from "react";
-import { Image, Pressable, Text, View, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import {
+  Image,
+  Pressable,
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import Modal from "react-native-modal";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
 import { colors } from "@/constants/Tokens";
 import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useAudioController } from "@/hooks/useAudioController";
+import { SongDetail } from "@/components/SongDetail";
 const formatTime = (millis: number) => {
   const totalSeconds = Math.floor(millis / 1000);
   const minutes = Math.floor(totalSeconds / 60);
@@ -29,6 +38,15 @@ const formatTime = (millis: number) => {
 };
 
 const PlayerScreen = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleSharePress = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
   const router = useRouter();
   const { togglePlayPause, handlePlayNext, handlePlayPrevious, handleSeek } =
     useAudioController();
@@ -123,15 +141,46 @@ const PlayerScreen = () => {
           <Bluetooth color={"white"} size={18} />
         </TouchableOpacity>
         <View className="flex-row items-center justify-between w-1/4">
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleSharePress}>
             <Share color={"white"} size={18} />
           </TouchableOpacity>
           <TouchableOpacity>
             <ListVideo color={"white"} size={20} />
           </TouchableOpacity>
         </View>
+        <Modal
+          isVisible={modalVisible}
+          onSwipeComplete={handleCloseModal}
+          swipeDirection="down"
+          style={styles.modal}
+        >
+          <View style={styles.modalContent}>
+            <SongDetail
+              route={{
+                key: "someKey",
+                name: "SongDetail",
+                params: { songId: currentTrack.id },
+              }}
+            />
+          </View>
+        </Modal>
       </View>
     </LinearGradient>
   );
 };
+
+const styles = StyleSheet.create({
+  modal: {
+    justifyContent: "flex-end",
+    borderTopLeftRadius: 17,
+    borderTopRightRadius: 17,
+    margin: 0,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 17,
+    borderTopRightRadius: 17,
+    minHeight: "95%",
+  },
+});
 export default PlayerScreen;

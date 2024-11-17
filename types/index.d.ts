@@ -8,3 +8,9 @@ declare module "react-native-color-grabber" {
     ): Promise<{ colors: string[] }>;
   }
 }
+
+export type LibraryParamList = {
+  index: undefined;
+  "userLibrary/index": undefined;
+  "userSettings/index": undefined;
+};

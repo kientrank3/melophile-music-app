@@ -26,31 +26,9 @@ import { LinearGradient } from "expo-linear-gradient";
 //import useImageColors from '../hooks/useImageColor';
 import { Song, Artist } from "@/utils/database.types";
 import { getSongWithId, getArtistWithId } from "../controllers/database";
-import axios from "axios";
-
-// const song = {
-//   id: 1,
-//   title: "Cơn Mưa Tháng 5",
-//   url: "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/song/ConMuaThang5-TungDuongTranLap-6926895.mp3?t=2024-10-15T00%3A37%3A18.407Z",
-//   artist: "Hà Nhi",
-//   imageUrl:
-//     "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/songImage/chuaquennguoiyeucu.jpg?t=2024-10-15T00%3A42%3A41.966Z",
-// };
-const options = [
-  { icon: Heart, label: "Like" },
-  { icon: EyeOff, label: "Hide song" },
-  { icon: PlusCircle, label: "Add to playlist" },
-  { icon: ListMusic, label: "Add to queue" },
-  { icon: Share, label: "Share" },
-  { icon: Radio, label: "Go to radio" },
-  { icon: Album, label: "View album" },
-  { icon: User, label: "View artist" },
-  { icon: Info, label: "Song credits" },
-  { icon: Moon, label: "Sleep timer" },
-];
-
+import supabase from "@/utils/supabase";
+import { useUser } from "@/hooks/useUser";
 import { RouteProp } from "@react-navigation/native";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -58,34 +36,65 @@ type RootStackParamList = {
 
 type SongDetailRouteProp = RouteProp<RootStackParamList, "SongDetail">;
 
-const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
+export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const { songId } = route.params;
   const [song, setSong] = useState<Song | null>(null);
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
+  const user = useUser();
 
   const fetchSong = async () => {
     try {
       const data = await getSongWithId(songId); // Gọi hàm getSongWithId để lấy dữ liệu bài hát
       setSong(data);
+      fetchArtist(data.artist_id);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching song:", error);
     }
   };
-  const fetchArtist = async () => {
+  const fetchArtist = async (artistId: number) => {
     try {
-      const data = await getArtistWithId(song?.artist_id!);
+      const data = await getArtistWithId(artistId);
       setArtist(data);
     } catch (error) {
       console.error("Error fetching artist:", error);
     }
   };
 
+  const handleAddToFavorites = async () => {
+    if (song && user) {
+      try {
+        const { data, error } = await supabase
+          .from("FavoriteSong")
+          .insert([{ song_id: song.id, user_id: user.id }]); // Thay 'your-user-id' bằng ID người dùng thực tế
+
+        if (error) {
+          throw error;
+        }
+
+        console.log("Song added to favorites:", data);
+      } catch (error) {
+        console.error("Error adding song to favorites:", error);
+      }
+    }
+  };
+  const options = [
+    { icon: Heart, label: "Like", action: handleAddToFavorites },
+    { icon: EyeOff, label: "Hide song" },
+    { icon: PlusCircle, label: "Add to playlist" },
+    { icon: ListMusic, label: "Add to queue" },
+    { icon: Share, label: "Share" },
+    { icon: Radio, label: "Go to radio" },
+    { icon: Album, label: "View album" },
+    { icon: User, label: "View artist" },
+    { icon: Info, label: "Song credits" },
+    { icon: Moon, label: "Sleep timer" },
+  ];
+
   useEffect(() => {
     fetchSong();
-    fetchArtist();
-  }, []);
+  }, [songId]);
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-black">
@@ -104,7 +113,10 @@ const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const renderOption = ({ item }: any) => {
     const IconComponent = item.icon;
     return (
-      <TouchableOpacity className="flex-row items-center py-3 border-b">
+      <TouchableOpacity
+        className="flex-row items-center py-3 border-b"
+        onPress={item.action}
+      >
         <IconComponent size={24} color="white" className="mr-4" />
         <Text className="text-white text-lg p-2">{item.label}</Text>
       </TouchableOpacity>
@@ -137,4 +149,3 @@ const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
     </View>
   );
 };
-export default SongDetail;

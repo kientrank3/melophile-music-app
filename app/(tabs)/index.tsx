@@ -134,13 +134,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </DrawerHeader>
           <DrawerBody className="border-t border-gray-700">
-            <TouchableOpacity
-              className="flex-row items-center py-2"
-              onPress={() => {
-                setShowDrawer(false); // Đóng Drawer trước khi chuyển trang
-                router.push("/login"); // Điều hướng đến trang login
-              }}
-            >
+            <TouchableOpacity className="flex-row items-center py-2">
               <Plus color={"#fff"} size={20} />
               <Text className="text-white font-xl pl-2">Thêm tài khoản</Text>
             </TouchableOpacity>

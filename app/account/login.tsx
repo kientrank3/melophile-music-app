@@ -16,7 +16,7 @@ export default function Login() {
     <SafeAreaView className="flex-1 bg-black">
       <View className="flex-1 justify-center items-center">
         <Image
-          source={require("../assets/images/background.jpg")}
+          source={require("@/assets/images/background.jpg")}
           className="w-full h-full"
         />
       </View>
@@ -30,7 +30,7 @@ export default function Login() {
       <View className="p-4">
         <TouchableOpacity
           className="bg-green-500 border p-5 rounded-full flex-row space-x-4 items-center justify-center"
-          onPress={() => router.push("/signup")}
+          onPress={() => router.push("/account/signup")}
         >
           <Text className="text-white font-bold text-center text-lg">
             Sign up free
