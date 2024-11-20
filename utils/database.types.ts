@@ -28,7 +28,7 @@ export interface Album {
   imageUrl: string;
   genre_id: number;
   is_compilation: boolean;
-  created_date: string;
+  create_date: string;
 }
 export interface User {
   id: number;

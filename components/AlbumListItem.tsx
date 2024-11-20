@@ -48,7 +48,7 @@ export const AlbumListItem: React.FC<AlbumProps> = ({ album }) => {
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {album.created_date}
+            {album.create_date}
           </Text>
         </View>
       )}

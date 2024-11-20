@@ -54,7 +54,7 @@ const PlaylistScreen = () => {
     fetchSong();
   }, [album?.id]);
   return (
-    <ScrollView className="">
+    <ScrollView className="mt-8">
       <View className="flex justify-center items-center">
         <TouchableOpacity
           className="w-full px-2 mb-[-12px]"
@@ -73,7 +73,7 @@ const PlaylistScreen = () => {
           {album?.title}
         </Text>
         <Text className="text-white text-sm w-full py-1 px-2">
-          {album?.created_date}
+          {album?.create_date}
         </Text>
         <Text className="text-gray-400 text-xs w-full py-1 px-2">
           Press play, press start.

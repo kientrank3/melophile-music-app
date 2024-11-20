@@ -39,7 +39,7 @@ const SearchScreen = () => {
   }, []);
 
   return (
-    <ScrollView stickyHeaderIndices={[1]} className="">
+    <ScrollView stickyHeaderIndices={[1]} className="mt-8">
       <View className="p-2.5 flex-row justify-between items-center">
         <View className="flex-row items-center">
           <TouchableOpacity>
@@ -78,7 +78,7 @@ const SearchScreen = () => {
             onRequestClose={toggleModal}
           >
             <View
-              className="h-14 justify-center "
+              className="h-14 justify-center mt-8"
               style={{
                 backgroundColor: "#282828",
               }}
@@ -107,7 +107,12 @@ const SearchScreen = () => {
                   Các tìm kiếm gần đây
                 </Text>
                 <View className="h-1/2">
-                  <TracksList songs={songs} sroll={true} nestedScroll={true} />
+                  <TracksList
+                    songs={songs}
+                    sroll={true}
+                    nestedScroll={true}
+                    trackListId="searchTrackList"
+                  />
                 </View>
 
                 <View className="w-full justify-center items-center py-5">
@@ -129,11 +134,7 @@ const SearchScreen = () => {
         <View className="flex-row flex-wrap">
           {genres.map((item) => (
             <View key={item.id} className="w-1/2">
-              <TrackListGenre
-                title={item.title}
-                imageUrl={item.imageUrl}
-                bgColor={item.color}
-              />
+              <TrackListGenre genre={item} />
             </View>
           ))}
           <View className="pb-80" />

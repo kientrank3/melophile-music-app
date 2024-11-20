@@ -41,14 +41,13 @@ export const TracksList = ({ songs, sroll, nestedScroll }: TracksListProps) => {
   useEffect(() => {
     const loadSound = async () => {
       if (!currentTrack) return;
-
+      dispatch(setPosition(0));
+      dispatch(setDuration(0));
       // Nếu đã có âm thanh, dừng và giải phóng
       if (sound.current) {
         await sound.current.unloadAsync();
         sound.current = null;
       }
-      dispatch(setPosition(0));
-      dispatch(setDuration(0));
 
       // Tạo âm thanh mới từ track hiện tại
       const { sound: newSound, status } = await Audio.Sound.createAsync(

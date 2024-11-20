@@ -59,7 +59,7 @@ const PlayerScreen = () => {
   return (
     <LinearGradient
       style={{ flex: 1 }}
-      className="items-center "
+      className="items-center mt-8"
       colors={[colors.background, "black", "black", "black"]}
     >
       <View className="flex-row justify-between px-4 items-center w-full mt-8">

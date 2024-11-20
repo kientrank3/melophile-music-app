@@ -75,7 +75,7 @@ const HomeScreen = () => {
   return (
     <ScrollView
       stickyHeaderIndices={[0]}
-      className=""
+      className="mt-8"
       nestedScrollEnabled={true}
     >
       <View className="p-2.5 pb-2.5 flex-row justify-between items-center bg-black">
@@ -112,7 +112,7 @@ const HomeScreen = () => {
         }}
         size="lg"
         anchor="left"
-        className=""
+        className="mt-8"
       >
         <DrawerBackdrop />
         <DrawerContent>
@@ -212,11 +212,7 @@ const HomeScreen = () => {
             renderItem={({ item }) => {
               return (
                 <View className="w-60">
-                  <TrackListGenre
-                    title={item.title}
-                    imageUrl={item.imageUrl}
-                    bgColor={item.color}
-                  />
+                  <TrackListGenre genre={item} />
                 </View>
               );
             }}
