@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Song } from "@/utils/database.types";
+import { Audio } from "expo-av";
 
 interface PlayerState {
   currentTrack: Song | null;
@@ -7,8 +8,8 @@ interface PlayerState {
   history: Song[];
   isPlaying: boolean;
   isVisible: boolean;
-  position: number; // Thêm vị trí phát nhạc
-  duration: number; // Thêm thời lượng bài nhạc
+  position: number;
+  duration: number;
 }
 
 const initialState: PlayerState = {
@@ -38,9 +39,6 @@ const playerSlice = createSlice({
       const { queue, history } = action.payload;
       state.queue = queue;
       state.history = history;
-      state.currentTrack = null;
-      state.isPlaying = false;
-      state.isVisible = false;
     },
     playTrack: (state, action: PayloadAction<Song>) => {
       // Khi phát bài mới, cập nhật currentTrack mà không thay đổi history
@@ -75,8 +73,6 @@ const playerSlice = createSlice({
       state.currentTrack = null;
       state.isPlaying = false;
       state.isVisible = false;
-      state.history = [];
-      state.queue = [];
     },
   },
 });

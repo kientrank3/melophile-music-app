@@ -145,38 +145,77 @@ export const getArtistWithId = async (id: number) => {
     throw error;
   }
 };
-export async function getAlbumsByGenre(genreId: number): Promise<Album[]> {
-  const { data, error } = await supabase
-    .from("Album")
-    .select(
-      `
-      id ,
-      title ,
-      imageUrl,
-      genre_id,
-      create_date,
-      is_compilation,
-    `
-    )
-    .eq("genre_id", genreId);
-
-  if (error) {
+export const getAlbumsByGenre = async (genreId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Album")
+      .select("*")
+      .eq("genre_id", genreId);
+    if (error) throw error;
+    return data;
+  } catch (error) {
     console.error("Error fetching albums by genre:", error);
     throw error;
   }
+};
 
-  // Chuyển đổi dữ liệu thành mảng các đối tượng Album
-  const albums: Album[] = data.map((row: any) => ({
-    id: row.id,
-    title: row.title,
-    imageUrl: row.imageUrl,
-    genre_id: row.genre_id,
-    create_date: row.create_date,
-    is_compilation: row.is_compilation,
-  }));
+export const getAlbumsByArtist = async (artistId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("AlbumCollab")
+      .select(
+        `
+      album_id,
+      Album (
+        id,
+        title,
+        imageUrl,
+        genre_id,
+        create_date,
+        is_compilation
+      )
+    `
+      )
+      .eq("artist_id", artistId);
+    if (error) throw error;
 
-  return albums;
-}
+    return data.map((row: any) => ({
+      id: row.Album.id,
+      title: row.Album.title,
+      imageUrl: row.Album.imageUrl,
+      genre_id: row.Album.genre_id,
+      create_date: row.Album.create_date,
+      is_compilation: row.Album.is_compilation,
+    }));
+  } catch (error) {
+    console.error("Error fetching albums by artist:", error);
+    throw error;
+  }
+};
+
+export const getSongsByArtist = async (artistId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Song")
+      .select("*, Artist(name)")
+      .eq("artist_id", artistId);
+    if (error) throw error;
+
+    return data.map((song: any) => ({
+      id: song.id,
+      title: song.title,
+      url: song.url,
+      imageUrl: song.imageUrl,
+      genre_id: song.genre_id,
+      artist_id: song.artist_id,
+      artist_name: song.Artist?.name || "Unknown Artist",
+    }));
+  } catch (error) {
+    console.error("Error fetching songs by artist:", error);
+    throw error;
+  }
+};
+
 export async function getSongsByGenre(genreId: number): Promise<Song[]> {
   const { data, error } = await supabase
     .from("Song")

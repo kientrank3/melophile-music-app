@@ -13,13 +13,55 @@ import {
 } from "@/redux/playSlice";
 
 export const useAudioController = () => {
-  const { currentTrack, isPlaying, position, duration } = useSelector(
+  const { currentTrack, isPlaying, position } = useSelector(
     (state: RootState) => state.player
   );
   const dispatch = useDispatch();
-  const sound = useRef<Audio.Sound | null>(null);
   const isSoundLoaded = useRef(false);
+  const sound = useRef<Audio.Sound | null>(null);
 
+  const loadSound = async () => {
+    if (sound.current) {
+      await sound.current.stopAsync();
+      await sound.current.unloadAsync();
+      sound.current = null;
+    }
+    if (!currentTrack) return;
+
+    dispatch(setPosition(0));
+    dispatch(setDuration(0));
+    // Nếu đã có âm thanh, dừng và giải phóng
+
+    // Tạo âm thanh mới từ track hiện tại
+    const { sound: newSound, status } = await Audio.Sound.createAsync(
+      { uri: currentTrack.url },
+      {
+        shouldPlay: isPlaying,
+        positionMillis: position,
+        isLooping: false,
+        shouldCorrectPitch: true,
+      }
+    );
+
+    sound.current = newSound;
+
+    // Cập nhật `duration` vào Redux
+    if (status.isLoaded) {
+      dispatch(setDuration(status.durationMillis || 0));
+      dispatch(setPosition(status.positionMillis || 0));
+    }
+
+    // Thiết lập cập nhật trạng thái phát nhạc
+    newSound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded) {
+        dispatch(setPosition(status.positionMillis || 0));
+        dispatch(setDuration(status.durationMillis || 0));
+        if (status.didJustFinish) {
+          handlePlayNext(); // Chuyển bài khi kết thúc
+        }
+      }
+    });
+  };
   // Hàm chuyển đổi giữa phát và tạm dừng
   const togglePlayPause = () => {
     if (isPlaying) {
@@ -31,10 +73,14 @@ export const useAudioController = () => {
 
   // Dừng và giải phóng hoàn toàn bài hát hiện tại
   const stopCurrentTrack = async () => {
-    if (sound.current) {
-      await sound.current.stopAsync();
-      await sound.current.unloadAsync();
-      sound.current = null;
+    if (currentTrack) {
+      if (sound.current) {
+        await sound.current.stopAsync();
+        await sound.current.unloadAsync();
+
+        sound.current = null;
+      }
+      dispatch(pauseTrack());
       isSoundLoaded.current = false;
     }
     // Đặt lại `position` và `duration` khi dừng bài hát
@@ -67,6 +113,7 @@ export const useAudioController = () => {
   };
 
   return {
+    loadSound,
     togglePlayPause,
     handlePlayNext,
     handlePlayPrevious,

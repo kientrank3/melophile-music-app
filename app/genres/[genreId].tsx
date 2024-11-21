@@ -9,6 +9,7 @@ import {
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  getAlbumsByGenre,
   getAllAlbum,
   getGenreWithId,
   getSongsByGenre,
@@ -43,7 +44,6 @@ const GenreScreen = () => {
     };
 
     fetchGenre();
-    console.log(genre);
   }, []);
   useEffect(() => {
     const fetchSong = async () => {
@@ -54,13 +54,23 @@ const GenreScreen = () => {
     };
     const fetchAlbum = async () => {
       if (genre) {
-        const data = await getAllAlbum();
+        const data = await getAlbumsByGenre(genre.id);
         setAlbum(data || []);
       }
     };
 
     fetchAlbum();
     fetchSong();
+  }, [genre?.id]);
+  useEffect(() => {
+    const fetchAlbum = async () => {
+      if (genre) {
+        const data = await getAlbumsByGenre(genre.id);
+        setAlbum(data || []);
+      }
+    };
+
+    fetchAlbum();
   }, [genre?.id]);
   return (
     <ScrollView className="mt-8">
@@ -71,19 +81,27 @@ const GenreScreen = () => {
             router.back();
           }}
         >
-          <ChevronDown color={"white"} size={22} />
+          <ChevronDown color={"white"} size={24} />
         </TouchableOpacity>
         <Image
           source={{ uri: genre?.imageUrl }}
           alt="image"
           className="h-40 w-40 items-center"
         />
-        <Text className="text-white text-lg w-full py-1.5 px-2">
+        <Text className="text-white text-2xl w-full py-1.5 px-2">
           {genre?.title}
         </Text>
       </View>
+      <View className="pb-10">
+        <Text className="text-white text-lg font-semibold py-2">
+          Các bài hát dành cho bạn
+        </Text>
+        <TracksList songs={tracks} sroll={false} nestedScroll={true} />
+      </View>
       <View>
-        <Text className="text-white text-lg w-full py-1.5 px-2">Albums</Text>
+        <Text className="text-white text-lg font-semibold py-2">
+          Danh sách play list
+        </Text>
         <FlatList
           data={album}
           renderItem={({ item }) => <AlbumListItem album={item} />}
@@ -92,9 +110,6 @@ const GenreScreen = () => {
           showsHorizontalScrollIndicator={false}
           nestedScrollEnabled={true}
         />
-      </View>
-      <View className="pb-10">
-        <TracksList songs={tracks} sroll={false} nestedScroll={true} />
       </View>
     </ScrollView>
   );
