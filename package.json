@@ -46,7 +46,7 @@
     "expo-web-browser": "~14.0.1",
     "i": "^0.3.7",
     "install": "^0.13.0",
-    "lucide-react-native": "^0.441.0",
+    "lucide-react-native": "^0.454.0",
     "mux.js": "^6.3.0",
     "nativewind": "4.0.36",
     "npm": "^10.9.0",
