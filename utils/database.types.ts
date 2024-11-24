@@ -33,10 +33,11 @@ export interface Album {
 export interface User {
   id: number;
   user_name: string;
-  phone_number?: string;
-  email?: string;
-  name?: string;
+  phone_number: string;
+  email: string;
+  name: string;
   password: string;
+  urlImage: string;
 }
 export interface FavoriteSong {
   id: number;

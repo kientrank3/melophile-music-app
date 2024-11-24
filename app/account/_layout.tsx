@@ -8,12 +8,16 @@ import { Provider } from "react-redux";
 import store from "@/redux/store";
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function LoginLayout() {
   return (
     <GluestackUIProvider mode="dark">
       <Provider store={store}>
         <ThemeProvider value={DarkTheme}>
-          <Stack>
+          <Stack
+            screenOptions={{
+              headerShown: false, // Tắt header mặc định cho tất cả màn hình trong Stack
+            }}
+          >
             <Stack.Screen
               name="signup"
               options={{

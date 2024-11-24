@@ -1,9 +1,10 @@
 import React from "react";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { LibraryParamList } from "../type"; // Import LibraryParamList
 //import {LinearGradient} from "react-native-linear-gradient";
 import { LinearGradient } from "expo-linear-gradient";
 import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { Ionicons } from "@expo/vector-icons";
 
 type PlaylistItem = {
@@ -38,7 +39,8 @@ const data: PlaylistItem[] = [
 ];
 
 const UserLibraryScreen = () => {
-  const navigation = useNavigation<NavigationProp<LibraryParamList>>();
+  // const navigation = useNavigation<NavigationProp<LibraryParamList>>();
+  const user = useSelector((state: RootState) => state.auth.user);
   const renderItem = ({ item }: { item: PlaylistItem }) => (
     <TouchableOpacity className="flex-row items-center justify-between p-4">
       <View className="flex-row items-center space-x-4">
@@ -66,13 +68,13 @@ const UserLibraryScreen = () => {
         <View className="items-center pt-8 pb-4">
           <Image
             source={{
-              uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+              uri: user?.urlImage,
             }}
             className="w-24 h-24 rounded-full"
           />
           <TouchableOpacity
             className="mt-4 bg-gray-600 py-1 px-4 rounded-full"
-            onPress={() => navigation.navigate("userSettings/index")}
+            // onPress={() => navigation.navigate("userSettings/index")}
           >
             <Text className="text-white text-sm">Edit Profile</Text>
           </TouchableOpacity>

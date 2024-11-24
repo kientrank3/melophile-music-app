@@ -36,6 +36,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { TracksList } from "@/components/TrackList";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -44,6 +46,24 @@ const HomeScreen = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const [isMounted, setIsMounted] = useState(false); // Kiểm tra xem layout đã được gắn vào chưa
+
+  useEffect(() => {
+    setIsMounted(true); // Đánh dấu RootLayout đã được gắn vào
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      if (user) {
+        router.push("/(tabs)"); // Điều hướng tới home nếu đã có user
+        console.log("User authenticated:", user);
+      } else {
+        console.log("No user found");
+        router.push("/account/login"); // Điều hướng tới login nếu chưa có user
+      }
+    }
+  }, [isMounted, user]);
   useEffect(() => {
     const fetchGenre = async () => {
       const data = await fetchRandomGenres(10);
@@ -72,6 +92,7 @@ const HomeScreen = () => {
     };
     fetchSong();
   }, []);
+
   return (
     <ScrollView
       stickyHeaderIndices={[0]}
@@ -87,7 +108,7 @@ const HomeScreen = () => {
           <Image
             className="w-10 h-10 rounded-full"
             source={{
-              uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+              uri: user?.urlImage,
             }}
             alt="image"
           />
@@ -121,20 +142,26 @@ const HomeScreen = () => {
               <Image
                 className="w-10 h-10 rounded-full"
                 source={{
-                  uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+                  uri: user?.urlImage,
                 }}
                 alt="image"
               />
               <View className="pl-2">
                 <Text className="text-white font-xl font-semibold">
-                  Trần Đình Kiên
+                  {user?.name}
                 </Text>
                 <Text className="text-gray-400 font-sm">Xem hồ sơ</Text>
               </View>
             </TouchableOpacity>
           </DrawerHeader>
           <DrawerBody className="border-t border-gray-700">
-            <TouchableOpacity className="flex-row items-center py-2">
+            <TouchableOpacity
+              className="flex-row items-center py-2"
+              onPress={() => {
+                setShowDrawer(false);
+                router.push("/account/login");
+              }}
+            >
               <Plus color={"#fff"} size={20} />
               <Text className="text-white font-xl pl-2">Thêm tài khoản</Text>
             </TouchableOpacity>
@@ -146,7 +173,13 @@ const HomeScreen = () => {
               <HistoryIcon color={"#fff"} size={20} />
               <Text className="text-white font-xl pl-2">Nội dung đã nghe</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="flex-row items-center py-2">
+            <TouchableOpacity
+              className="flex-row items-center py-2"
+              onPress={() => {
+                setShowDrawer(false);
+                router.push("/library/userSettings");
+              }}
+            >
               <Settings color={"#fff"} size={20} />
               <Text className="text-white font-xl pl-2">
                 Cài đặt và quyền riêng tư
