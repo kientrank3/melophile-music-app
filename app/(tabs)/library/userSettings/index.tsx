@@ -1,8 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useAuthState } from "@/hooks/useAuthState";
 const data = [
   {
     id: "1",
@@ -50,7 +49,7 @@ const data = [
   },
 ];
 const SettingsScreen = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAuthState();
   return (
     <View className="flex-1 bg-black px-4">
       <View className="flex-row items-center">

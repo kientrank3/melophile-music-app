@@ -25,11 +25,10 @@ import { LinearGradient } from "expo-linear-gradient";
 //import ImageColors from "react-native-image-colors"
 //import useImageColors from '../hooks/useImageColor';
 import { Song, Artist } from "@/utils/database.types";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { getSongWithId, getArtistWithId } from "../controllers/database";
 import supabase from "@/utils/supabase";
 import { RouteProp } from "@react-navigation/native";
+import { useAuthState } from "@/hooks/useAuthState";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -43,7 +42,7 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAuthState();
 
   const fetchSong = async () => {
     try {

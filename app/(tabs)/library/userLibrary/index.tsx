@@ -3,9 +3,8 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 //import {LinearGradient} from "react-native-linear-gradient";
 import { LinearGradient } from "expo-linear-gradient";
 import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthState } from "@/hooks/useAuthState";
 
 type PlaylistItem = {
   id: string;
@@ -40,7 +39,7 @@ const data: PlaylistItem[] = [
 
 const UserLibraryScreen = () => {
   // const navigation = useNavigation<NavigationProp<LibraryParamList>>();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAuthState();
   const renderItem = ({ item }: { item: PlaylistItem }) => (
     <TouchableOpacity className="flex-row items-center justify-between p-4">
       <View className="flex-row items-center space-x-4">

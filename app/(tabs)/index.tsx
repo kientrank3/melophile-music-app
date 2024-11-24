@@ -36,8 +36,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { TracksList } from "@/components/TrackList";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useAuthState } from "@/hooks/useAuthState";
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -46,7 +45,7 @@ const HomeScreen = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAuthState();
   const [isMounted, setIsMounted] = useState(false); // Kiểm tra xem layout đã được gắn vào chưa
 
   useEffect(() => {

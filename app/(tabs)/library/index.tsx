@@ -9,8 +9,7 @@ import {
   ListRenderItem,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useAuthState } from "@/hooks/useAuthState";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -66,11 +65,7 @@ const data: LibraryItem[] = [
 
 const LibraryScreen = () => {
   const navigation = useNavigation<NavigationProp<LibraryParamList>>();
-  const user = useSelector((state: RootState) => state.auth.user);
-
-  useEffect(() => {
-    console.log("Current user:", user);
-  }, [user]);
+  const user = useAuthState();
 
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity className="flex-row items-center p-4">
