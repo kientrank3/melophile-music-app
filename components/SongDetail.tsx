@@ -28,7 +28,7 @@ import { Song, Artist } from "@/utils/database.types";
 import { getSongWithId, getArtistWithId } from "../controllers/database";
 import supabase from "@/utils/supabase";
 import { RouteProp } from "@react-navigation/native";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuth } from "@/hooks/authContext";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -42,7 +42,7 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
-  const user = useAuthState();
+  const { user } = useAuth();
 
   const fetchSong = async () => {
     try {

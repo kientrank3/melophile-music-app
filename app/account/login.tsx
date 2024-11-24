@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import supabase from "@/utils/supabase";
 import { useDispatch } from "react-redux";
 import { login } from "@/redux/authSlice";
+import store from "@/redux/store";
 
 export default function Login() {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -40,7 +41,13 @@ export default function Login() {
       if (user.password !== password) {
         throw new Error("Mật khẩu không chính xác.");
       }
-      dispatch(login(user));
+
+      const currentUser = store.getState().auth.user;
+
+      // Chỉ dispatch nếu user mới khác với user hiện tại
+      if (JSON.stringify(currentUser) !== JSON.stringify(user)) {
+        dispatch(login(user));
+      }
       // Lưu thông tin đăng nhập
       //await AsyncStorage.setItem("user", JSON.stringify(user));
 

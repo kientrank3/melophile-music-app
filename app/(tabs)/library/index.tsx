@@ -9,7 +9,7 @@ import {
   ListRenderItem,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthState } from "@/hooks/useAuthState";
+import { useAuth } from "@/hooks/authContext";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -65,7 +65,7 @@ const data: LibraryItem[] = [
 
 const LibraryScreen = () => {
   const navigation = useNavigation<NavigationProp<LibraryParamList>>();
-  const user = useAuthState();
+  const { user } = useAuth();
 
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity className="flex-row items-center p-4">
