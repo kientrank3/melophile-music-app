@@ -29,14 +29,15 @@ export default function RootLayout() {
     <GluestackUIProvider mode="dark">
       <Provider store={store}>
         <ThemeProvider value={DarkTheme}>
-          <Stack>
+          <Stack
+            screenOptions={{
+              headerShown: false, // Tắt header mặc định cho tất cả màn hình trong Stack
+            }}
+          >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
-              name="account"
-              options={{
-                headerShown: false,
-                //presentation: "modal", // Ẩn thanh tab ở trang login
-              }}
+              name="account/login"
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="player"

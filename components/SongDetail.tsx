@@ -25,9 +25,10 @@ import { LinearGradient } from "expo-linear-gradient";
 //import ImageColors from "react-native-image-colors"
 //import useImageColors from '../hooks/useImageColor';
 import { Song, Artist } from "@/utils/database.types";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { getSongWithId, getArtistWithId } from "../controllers/database";
 import supabase from "@/utils/supabase";
-import { useUser } from "@/hooks/useUser";
 import { RouteProp } from "@react-navigation/native";
 
 type RootStackParamList = {
@@ -41,16 +42,64 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const [song, setSong] = useState<Song | null>(null);
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
-  const user = useUser();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const fetchSong = async () => {
     try {
-      const data = await getSongWithId(songId); // Gọi hàm getSongWithId để lấy dữ liệu bài hát
+      const data = await getSongWithId(songId); // Lấy thông tin bài hát
       setSong(data);
       fetchArtist(data.artist_id);
+      checkFavoriteStatus(data.id); // Kiểm tra trạng thái yêu thích
       setLoading(false);
     } catch (error) {
       console.error("Error fetching song:", error);
+    }
+  };
+  const checkFavoriteStatus = async (songId: number) => {
+    if (user) {
+      try {
+        const { data, error } = await supabase
+          .from("FavoriteSong")
+          .select("*")
+          .eq("song_id", songId)
+          .eq("user_id", user.id);
+
+        if (error) throw error;
+
+        setIsFavorite(data.length > 0); // Cập nhật trạng thái yêu thích
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    }
+  };
+  const toggleFavorite = async () => {
+    if (song && user) {
+      try {
+        if (isFavorite) {
+          // Xóa khỏi yêu thích
+          const { error } = await supabase
+            .from("FavoriteSong")
+            .delete()
+            .eq("song_id", song.id)
+            .eq("user_id", user.id);
+
+          if (error) throw error;
+
+          setIsFavorite(false);
+        } else {
+          // Thêm vào yêu thích
+          const { error } = await supabase
+            .from("FavoriteSong")
+            .insert([{ song_id: song.id, user_id: user.id }]);
+
+          if (error) throw error;
+
+          setIsFavorite(true);
+        }
+      } catch (error) {
+        console.error("Error toggling favorite status:", error);
+      }
     }
   };
   const fetchArtist = async (artistId: number) => {
@@ -62,34 +111,22 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
     }
   };
 
-  const handleAddToFavorites = async () => {
-    if (song && user) {
-      try {
-        const { data, error } = await supabase
-          .from("FavoriteSong")
-          .insert([{ song_id: song.id, user_id: user.id }]); // Thay 'your-user-id' bằng ID người dùng thực tế
-
-        if (error) {
-          throw error;
-        }
-
-        console.log("Song added to favorites:", data);
-      } catch (error) {
-        console.error("Error adding song to favorites:", error);
-      }
-    }
-  };
   const options = [
-    { icon: Heart, label: "Like", action: handleAddToFavorites },
-    { icon: EyeOff, label: "Hide song" },
-    { icon: PlusCircle, label: "Add to playlist" },
-    { icon: ListMusic, label: "Add to queue" },
-    { icon: Share, label: "Share" },
-    { icon: Radio, label: "Go to radio" },
-    { icon: Album, label: "View album" },
-    { icon: User, label: "View artist" },
-    { icon: Info, label: "Song credits" },
-    { icon: Moon, label: "Sleep timer" },
+    {
+      icon: Heart,
+      label: isFavorite ? "Unlike" : "Like",
+      action: toggleFavorite,
+      iconColor: isFavorite ? "red" : "white",
+    },
+    { icon: EyeOff, label: "Hide song", iconColor: "white" },
+    { icon: PlusCircle, label: "Add to playlist", iconColor: "white" },
+    { icon: ListMusic, label: "Add to queue", iconColor: "white" },
+    { icon: Share, label: "Share", iconColor: "white" },
+    { icon: Radio, label: "Go to radio", iconColor: "white" },
+    { icon: Album, label: "View album", iconColor: "white" },
+    { icon: User, label: "View artist", iconColor: "white" },
+    { icon: Info, label: "Song credits", iconColor: "white" },
+    { icon: Moon, label: "Sleep timer", iconColor: "white" },
   ];
 
   useEffect(() => {
@@ -117,12 +154,11 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
         className="flex-row items-center py-3 border-b"
         onPress={item.action}
       >
-        <IconComponent size={24} color="white" className="mr-4" />
+        <IconComponent size={24} color={item.iconColor} className="mr-4" />
         <Text className="text-white text-lg p-2">{item.label}</Text>
       </TouchableOpacity>
     );
   };
-  //const { colors, error } = useImageColors(song.imageUrl);
 
   return (
     <View className="flex-1 bg-black">

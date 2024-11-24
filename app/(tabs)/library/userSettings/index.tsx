@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 const data = [
   {
     id: "1",
@@ -48,24 +50,15 @@ const data = [
   },
 ];
 const SettingsScreen = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
   return (
     <View className="flex-1 bg-black px-4">
-      {/* <View className="flex-row items-center justify-between mt-8">
-                <Image
-                    style={{ width: 40, height: 40, borderRadius: 40 }}
-                    source={{
-                        uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
-                    }}
-                    alt="Profile image"
-                />
-                <Text className="text-white text-2xl font-bold">Settings</Text>
-            </View> */}
       <View className="flex-row items-center">
         <TouchableOpacity>
           <Image
             style={{ width: 40, height: 40, borderRadius: 40 }}
             source={{
-              uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+              uri: user?.urlImage,
             }}
             alt="Profile image"
           />

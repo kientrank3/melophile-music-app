@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import {
   View,
@@ -9,6 +9,8 @@ import {
   ListRenderItem,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -64,6 +66,12 @@ const data: LibraryItem[] = [
 
 const LibraryScreen = () => {
   const navigation = useNavigation<NavigationProp<LibraryParamList>>();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  useEffect(() => {
+    console.log("Current user:", user);
+  }, [user]);
+
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity className="flex-row items-center p-4">
       {item.icon ? (
@@ -99,7 +107,7 @@ const LibraryScreen = () => {
             <Image
               style={{ width: 40, height: 40, borderRadius: 40 }}
               source={{
-                uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+                uri: user?.urlImage,
               }}
               alt="Profile image"
             />
