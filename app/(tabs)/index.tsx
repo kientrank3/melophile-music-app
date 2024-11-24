@@ -96,10 +96,10 @@ const HomeScreen = () => {
   return (
     <ScrollView
       stickyHeaderIndices={[0]}
-      className="px-4 py-4"
+      className="mt-8"
       nestedScrollEnabled={true}
     >
-      <View className="p-2.5 pb-2.5 flex-row justify-between items-center bg-black">
+      <View className="p-2 pb-2.5 flex-row justify-between items-center bg-black">
         <TouchableOpacity
           onPress={() => {
             setShowDrawer(true);
@@ -133,7 +133,7 @@ const HomeScreen = () => {
         }}
         size="lg"
         anchor="left"
-        className=""
+        className="mt-8"
       >
         <DrawerBackdrop />
         <DrawerContent>
@@ -197,7 +197,7 @@ const HomeScreen = () => {
           <FlatList
             data={artists}
             renderItem={({ item }) => {
-              return <ArtistItem name={item.name} imageUrl={item.imageUrl} />;
+              return <ArtistItem artist={item} />;
             }}
             keyExtractor={(item) => item.id.toString()}
             horizontal={true}
@@ -245,11 +245,7 @@ const HomeScreen = () => {
             renderItem={({ item }) => {
               return (
                 <View className="w-60">
-                  <TrackListGenre
-                    title={item.title}
-                    imageUrl={item.imageUrl}
-                    bgColor={item.color}
-                  />
+                  <TrackListGenre genre={item} />
                 </View>
               );
             }}
@@ -266,7 +262,7 @@ const HomeScreen = () => {
           </Text>
           <CirclePlay color={"white"} />
         </View>
-        <View className="bg-gray-800 rounded-xl p-1 h-80">
+        <View className="bg-gray-800 rounded-xl p-1 h-100">
           <TracksList songs={songs} sroll={false} nestedScroll={true} />
         </View>
       </View>

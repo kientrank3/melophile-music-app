@@ -117,6 +117,20 @@ export const getSongWithId = async (id: number) => {
     throw error;
   }
 };
+export const getGenreWithId = async (id: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Genre")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.log("Error fetching genre:", error);
+    throw error;
+  }
+};
 export const getArtistWithId = async (id: number) => {
   try {
     const { data, error } = await supabase
@@ -131,21 +145,90 @@ export const getArtistWithId = async (id: number) => {
     throw error;
   }
 };
+export const getAlbumsByGenre = async (genreId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Album")
+      .select("*")
+      .eq("genre_id", genreId);
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error fetching albums by genre:", error);
+    throw error;
+  }
+};
+
+export const getAlbumsByArtist = async (artistId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("AlbumCollab")
+      .select(
+        `
+      album_id,
+      Album (
+        id,
+        title,
+        imageUrl,
+        genre_id,
+        create_date,
+        is_compilation
+      )
+    `
+      )
+      .eq("artist_id", artistId);
+    if (error) throw error;
+
+    return data.map((row: any) => ({
+      id: row.Album.id,
+      title: row.Album.title,
+      imageUrl: row.Album.imageUrl,
+      genre_id: row.Album.genre_id,
+      create_date: row.Album.create_date,
+      is_compilation: row.Album.is_compilation,
+    }));
+  } catch (error) {
+    console.error("Error fetching albums by artist:", error);
+    throw error;
+  }
+};
+
+export const getSongsByArtist = async (artistId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("Song")
+      .select("*, Artist(name)")
+      .eq("artist_id", artistId);
+    if (error) throw error;
+
+    return data.map((song: any) => ({
+      id: song.id,
+      title: song.title,
+      url: song.url,
+      imageUrl: song.imageUrl,
+      genre_id: song.genre_id,
+      artist_id: song.artist_id,
+      artist_name: song.Artist?.name || "Unknown Artist",
+    }));
+  } catch (error) {
+    console.error("Error fetching songs by artist:", error);
+    throw error;
+  }
+};
+
 export async function getSongsByGenre(genreId: number): Promise<Song[]> {
   const { data, error } = await supabase
     .from("Song")
     .select(
       `
-      id AS song_id,
-      title AS song_title,
-      url AS song_url,
-      imageUrl AS song_imageUrl,
+      id ,
+      title ,
+      url ,
+      imageUrl,
       genre_id,
-      Genre (
-        id,
-        title AS genre_title,
-        imageUrl AS genre_imageUrl,
-        color AS genre_color
+      artist_id,
+       Artist (
+        name
       )
     `
     )
@@ -158,18 +241,18 @@ export async function getSongsByGenre(genreId: number): Promise<Song[]> {
 
   // Chuyển đổi dữ liệu thành mảng các đối tượng Song
   const songs: Song[] = data.map((row: any) => ({
-    id: row.song_id,
-    title: row.song_title,
-    url: row.song_url,
-    imageUrl: row.song_imageUrl,
+    id: row.id,
+    title: row.title,
+    url: row.url,
+    imageUrl: row.imageUrl,
     genre_id: row.genre_id,
     artist_id: row.artist_id,
-    album_id: row.album_id,
-    artist_name: row.artist_name || "Unknown",
+    artist_name: row.Artist?.name || "Unknown Artist",
   }));
 
   return songs;
 }
+
 export const getAlbumWithId = async (id: number) => {
   try {
     const { data, error } = await supabase
@@ -184,50 +267,6 @@ export const getAlbumWithId = async (id: number) => {
     throw error;
   }
 };
-
-export async function getAlbumsByGenre(genreId: number): Promise<Album[]> {
-  const { data, error } = await supabase
-    .from("Album")
-    .select(
-      `
-      id AS album_id,
-      title AS album_title,
-      imageUrl AS album_imageUrl,
-      genre_id,
-      create_date,
-      is_compilation,
-      Genre (
-        id,
-        title AS genre_title,
-        imageUrl AS genre_imageUrl,
-        color AS genre_color
-      )
-    `
-    )
-    .eq("genre_id", genreId);
-
-  if (error) {
-    console.error("Error fetching albums by genre:", error);
-    throw error;
-  }
-
-  // Chuyển đổi dữ liệu thành mảng các đối tượng Album
-  const albums: Album[] = data.map((row: any) => ({
-    id: row.album_id,
-    title: row.album_title,
-    imageUrl: row.album_imageUrl,
-    genre_id: row.genre_id,
-    genre_title: row.Genre.title,
-    genre_imageUrl: row.Genre.imageUrl,
-    genre_color: row.Genre.color,
-    created_date: row.create_date
-      ? new Date(row.create_date).toISOString()
-      : "",
-    is_compilation: row.is_compilation,
-  }));
-
-  return albums;
-}
 
 export const fetchRandomSongs = async (limit: number): Promise<Song[]> => {
   const { data, error } = await supabase.rpc("get_random_songs", {
