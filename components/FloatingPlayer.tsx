@@ -46,12 +46,7 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
       style={[{ opacity }, style]}
       className="absolute bottom-20 left-4 right-4 bg-black py-2 px-3 rounded-lg flex-row items-center"
     >
-      <Pressable
-        onPress={handlePress}
-        // className="absolute bottom-20 left-4 right-4 bg-black py-2 px-3 rounded-lg flex-row items-center"
-        // style={style}
-        className="flex-row items-center"
-      >
+      <Pressable onPress={handlePress} className="flex-row items-center">
         <Image
           source={{ uri: currentTrack.imageUrl }}
           className="w-12 h-12 rounded mr-4"

@@ -13,25 +13,24 @@ import {
 } from "@/redux/playSlice";
 
 export const useAudioController = () => {
-  const { currentTrack, isPlaying, position } = useSelector(
+  const { currentTrack, isPlaying, position, trackListId } = useSelector(
     (state: RootState) => state.player
   );
   const dispatch = useDispatch();
   const isSoundLoaded = useRef(false);
   const sound = useRef<Audio.Sound | null>(null);
 
-  const loadSound = async () => {
+  const loadSound = async (currentTrackList: string) => {
+    if (!currentTrack || trackListId !== currentTrackList) return;
     if (sound.current) {
       await sound.current.stopAsync();
       await sound.current.unloadAsync();
       sound.current = null;
     }
-    if (!currentTrack) return;
 
     dispatch(setPosition(0));
     dispatch(setDuration(0));
     // Nếu đã có âm thanh, dừng và giải phóng
-
     // Tạo âm thanh mới từ track hiện tại
     const { sound: newSound, status } = await Audio.Sound.createAsync(
       { uri: currentTrack.url },
@@ -50,7 +49,6 @@ export const useAudioController = () => {
       dispatch(setDuration(status.durationMillis || 0));
       dispatch(setPosition(status.positionMillis || 0));
     }
-
     // Thiết lập cập nhật trạng thái phát nhạc
     newSound.setOnPlaybackStatusUpdate((status) => {
       if (status.isLoaded) {
@@ -62,8 +60,18 @@ export const useAudioController = () => {
       }
     });
   };
+  const stopIfTrackListChanged = async (
+    newTrackListId: string,
+    currentTrackList: string
+  ) => {
+    if (newTrackListId !== currentTrackList && sound.current) {
+      await sound.current.stopAsync();
+      await sound.current.unloadAsync();
+      sound.current = null;
+    }
+  };
   // Hàm chuyển đổi giữa phát và tạm dừng
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     if (isPlaying) {
       dispatch(pauseTrack());
     } else {
@@ -109,6 +117,7 @@ export const useAudioController = () => {
   };
   const handleKillTrack = async () => {
     await stopCurrentTrack();
+
     dispatch(killTrack());
   };
 
@@ -120,5 +129,6 @@ export const useAudioController = () => {
     handleSeek,
     stopCurrentTrack,
     handleKillTrack,
+    stopIfTrackListChanged,
   };
 };

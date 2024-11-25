@@ -139,7 +139,12 @@ const ArtistScreen = () => {
       </View>
       <View className="px-2">
         <Text className="text-white text-lg font-semibold py-2">Phổ biến</Text>
-        <TracksList songs={tracks} sroll={false} nestedScroll={true} />
+        <TracksList
+          songs={tracks}
+          sroll={false}
+          nestedScroll={true}
+          id={"artistList" + artistId}
+        />
       </View>
       <View className="px-2">
         <Text className="text-white text-lg font-semibold py-2">

@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Song } from "@/utils/database.types";
-import { Audio } from "expo-av";
 
 interface PlayerState {
   currentTrack: Song | null;
@@ -10,6 +9,7 @@ interface PlayerState {
   isVisible: boolean;
   position: number;
   duration: number;
+  trackListId: string;
 }
 
 const initialState: PlayerState = {
@@ -20,6 +20,7 @@ const initialState: PlayerState = {
   isVisible: false,
   position: 0,
   duration: 0,
+  trackListId: "",
 };
 
 const playerSlice = createSlice({
@@ -29,16 +30,24 @@ const playerSlice = createSlice({
     setPosition: (state, action: PayloadAction<number>) => {
       state.position = action.payload;
     },
+    setCurrentTrackList: (state, action: PayloadAction<string>) => {
+      state.trackListId = action.payload;
+    },
     setDuration: (state, action: PayloadAction<number>) => {
       state.duration = action.payload;
     },
     initQueue: (
       state,
-      action: PayloadAction<{ queue: Song[]; history: Song[] }>
+      action: PayloadAction<{
+        queue: Song[];
+        history: Song[];
+        trackListId: string;
+      }>
     ) => {
-      const { queue, history } = action.payload;
+      const { queue, history, trackListId } = action.payload;
       state.queue = queue;
       state.history = history;
+      state.trackListId = trackListId;
     },
     playTrack: (state, action: PayloadAction<Song>) => {
       // Khi phát bài mới, cập nhật currentTrack mà không thay đổi history
@@ -86,5 +95,6 @@ export const {
   playPreviousTrack,
   pauseTrack,
   killTrack,
+  setCurrentTrackList,
 } = playerSlice.actions;
 export default playerSlice.reducer;

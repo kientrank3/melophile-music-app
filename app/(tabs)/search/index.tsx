@@ -111,7 +111,7 @@ const SearchScreen = () => {
                     songs={songs}
                     sroll={true}
                     nestedScroll={true}
-                    trackListId="searchTrackList"
+                    id="searchTrackList"
                   />
                 </View>
 

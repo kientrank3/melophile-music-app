@@ -10,7 +10,6 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   getAlbumsByGenre,
-  getAllAlbum,
   getGenreWithId,
   getSongsByGenre,
 } from "@/controllers/database";
@@ -96,7 +95,12 @@ const GenreScreen = () => {
         <Text className="text-white text-lg font-semibold py-2">
           Các bài hát dành cho bạn
         </Text>
-        <TracksList songs={tracks} sroll={false} nestedScroll={true} />
+        <TracksList
+          songs={tracks}
+          sroll={false}
+          nestedScroll={true}
+          id={"genreList" + genreId}
+        />
       </View>
       <View>
         <Text className="text-white text-lg font-semibold py-2">
