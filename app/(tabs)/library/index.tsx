@@ -13,6 +13,10 @@ import { useAuth } from "@/hooks/authContext";
 import supabase from "@/utils/supabase";
 import { Song } from "@/utils/database.types";
 import { useRouter } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { setFavorites } from "@/redux/favoritesSlice";
+import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -20,7 +24,7 @@ type LibraryParamList = {
 };
 type LibraryItem = {
   id: string;
-  type: "playlist" | "artist" | "song";
+  type: "album" | "artist" | "song";
   name: string;
   info?: string;
   icon?: string;
@@ -31,9 +35,43 @@ type LibraryItem = {
 const LibraryScreen = () => {
   const navigation = useNavigation<NavigationProp<LibraryParamList>>();
   const { user } = useAuth();
-  const [likedSongsCount, setLikedSongsCount] = useState<number>(0);
-  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+  const [recentItems, setRecentItems] = useState<LibraryItem[]>([]);
+  const likedSongs = useSelector((state: RootState) => state.favorites.songs);
+  const likedSongsCount = likedSongs.length;
+  const dispatch = useDispatch();
   const router = useRouter();
+  useEffect(() => {
+    const loadRecentItems = async () => {
+      if (user) {
+        const items = await fetchRecentItems(user.id);
+        const formattedItems: LibraryItem[] = items.map((item) => ({
+          id: item.item_id,
+          type: item.type,
+          name: item.type === "song" ? "Song Name" : "Playlist Name", // Replace with actual name lookup
+          timestamp: item.timestamp,
+        }));
+        setRecentItems(formattedItems);
+      }
+    };
+    const fetchFavoriteSongs = async () => {
+      if (user) {
+        const { data: favoriteSongs, error } = await supabase
+          .from("FavoriteSong")
+          .select("song_id, Song(*)") // Ensure 'Song' is the correct table name
+          .eq("user_id", user.id);
+
+        if (error) {
+          console.error("Error fetching favorite songs:", error);
+        } else {
+          const songs = favoriteSongs.map((item) => item.Song);
+          dispatch(setFavorites(songs as unknown as Song[]));
+        }
+      }
+    };
+
+    fetchFavoriteSongs();
+    loadRecentItems();
+  }, [user, dispatch]);
 
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity
@@ -62,37 +100,6 @@ const LibraryScreen = () => {
     </TouchableOpacity>
   );
 
-  useEffect(() => {
-    const fetchLikedSongsCount = async () => {
-      if (user) {
-        const { data: favoriteSongs, error } = await supabase
-          .from("FavoriteSong")
-          .select("song_id")
-          .eq("user_id", user.id);
-
-        if (error) {
-          console.error("Error fetching liked songs:", error);
-          return;
-        }
-
-        const songIds = favoriteSongs.map((item) => item.song_id);
-
-        const { data: songs, error: songError } = await supabase
-          .from("Song") // Replace with your actual songs table name
-          .select("*")
-          .in("id", songIds);
-
-        if (songError) {
-          console.error("Error fetching songs:", songError);
-        } else {
-          setLikedSongs(songs);
-          setLikedSongsCount(songs.length);
-        }
-      }
-    };
-
-    fetchLikedSongsCount();
-  }, [user]);
   const handleLikedSongsPress = () => {
     router.push({
       pathname: "/playlist/[albumId]",
@@ -104,42 +111,14 @@ const LibraryScreen = () => {
   };
   const data: LibraryItem[] = [
     {
-      id: "1",
-      type: "playlist",
+      id: "0",
+      type: "album",
       name: "Liked Songs",
       info: `${likedSongsCount} songs`,
       icon: "heart",
       onPress: handleLikedSongsPress,
     },
-    {
-      id: "2",
-      type: "artist",
-      name: "Lolo Zouaï",
-      imageUri:
-        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-    },
-    {
-      id: "3",
-      type: "artist",
-      name: "Lana Del Rey",
-      imageUri:
-        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-    },
-    {
-      id: "4",
-      type: "playlist",
-      name: "Front Left",
-      info: "Playlist • Spotify",
-      imageUri:
-        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-    },
-    {
-      id: "5",
-      type: "artist",
-      name: "Marvin Gaye",
-      imageUri:
-        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-    },
+    ...recentItems,
   ];
   return (
     <View className="flex-1 bg-black">

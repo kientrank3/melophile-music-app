@@ -29,6 +29,13 @@ import { getSongWithId, getArtistWithId } from "../controllers/database";
 import supabase from "@/utils/supabase";
 import { RouteProp } from "@react-navigation/native";
 import { useAuth } from "@/hooks/authContext";
+import {
+  addFavorite,
+  removeFavorite,
+  setFavorites,
+} from "@/redux/favoritesSlice";
+import { useDispatch } from "react-redux";
+import { logRecentlyPlayed } from "@/controllers/recentlyPlayedController";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -37,6 +44,7 @@ type RootStackParamList = {
 type SongDetailRouteProp = RouteProp<RootStackParamList, "SongDetail">;
 
 export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
+  const dispatch = useDispatch();
   const { songId } = route.params;
   const [song, setSong] = useState<Song | null>(null);
   const [artist, setArtist] = useState<Artist | null>(null);
@@ -84,7 +92,7 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
             .eq("user_id", user.id);
 
           if (error) throw error;
-
+          dispatch(removeFavorite(song.id));
           setIsFavorite(false);
         } else {
           // Thêm vào yêu thích
@@ -93,7 +101,7 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
             .insert([{ song_id: song.id, user_id: user.id }]);
 
           if (error) throw error;
-
+          dispatch(addFavorite(song));
           setIsFavorite(true);
         }
       } catch (error) {
@@ -101,6 +109,31 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
       }
     }
   };
+  useEffect(() => {
+    if (user && song) {
+      // Log the song as recently played
+      logRecentlyPlayed(user.id, song.id, "song", song.imageUrl);
+    }
+  }, [user, song]);
+  // useEffect(() => {
+  //   const fetchFavoriteSongs = async () => {
+  //     if (user) {
+  //       const { data: favoriteSongs, error } = await supabase
+  //         .from('FavoriteSong')
+  //         .select('song_id, Song(*)')
+  //         .eq('user_id', user.id);
+
+  //       if (error) {
+  //         console.error("Error fetching favorite songs:", error);
+  //       } else {
+  //         const songs = favoriteSongs.map(item => item.Song).filter(song => song);
+  //         dispatch(setFavorites(songs as unknown as Song[]));
+  //       }
+  //     }
+  //   };
+
+  //   fetchFavoriteSongs();
+  // }, [user, dispatch]);
   const fetchArtist = async (artistId: number) => {
     try {
       const data = await getArtistWithId(artistId);

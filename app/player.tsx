@@ -36,6 +36,8 @@ import {
   playTrack,
   setPosition,
 } from "@/redux/playSlice";
+import { useAuth } from "@/hooks/authContext";
+import { logRecentlyPlayed } from "@/controllers/recentlyPlayedController";
 const formatTime = (millis: number) => {
   const totalSeconds = Math.floor(millis / 1000);
   const minutes = Math.floor(totalSeconds / 60);
@@ -46,6 +48,7 @@ const formatTime = (millis: number) => {
 const PlayerScreen = React.memo(() => {
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
+  const { user } = useAuth();
   const handleSharePress = () => {
     setModalVisible(true);
   };
@@ -58,6 +61,17 @@ const PlayerScreen = React.memo(() => {
     (state: RootState) => state.player,
     shallowEqual
   );
+  useEffect(() => {
+    if (user && currentTrack) {
+      // Log the song as recently played
+      logRecentlyPlayed(
+        user.id,
+        currentTrack.id,
+        "song",
+        currentTrack.imageUrl
+      );
+    }
+  }, [user, currentTrack]);
 
   if (!currentTrack) return null;
 
