@@ -13,7 +13,7 @@ import {
   SkipBack,
   SkipForward,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -26,10 +26,16 @@ import Modal from "react-native-modal";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
 import { colors } from "@/constants/Tokens";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { useAudioController } from "@/hooks/useAudioController";
 import { SongDetail } from "@/components/SongDetail";
+import {
+  pauseTrack,
+  playNextTrack,
+  playPreviousTrack,
+  playTrack,
+  setPosition,
+} from "@/redux/playSlice";
 const formatTime = (millis: number) => {
   const totalSeconds = Math.floor(millis / 1000);
   const minutes = Math.floor(totalSeconds / 60);
@@ -37,25 +43,27 @@ const formatTime = (millis: number) => {
   return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 };
 
-const PlayerScreen = () => {
+const PlayerScreen = React.memo(() => {
   const [modalVisible, setModalVisible] = useState(false);
-
+  const dispatch = useDispatch();
   const handleSharePress = () => {
     setModalVisible(true);
   };
-
   const handleCloseModal = () => {
     setModalVisible(false);
   };
   const router = useRouter();
-  const { togglePlayPause, handlePlayNext, handlePlayPrevious, handleSeek } =
-    useAudioController();
+
   const { currentTrack, isPlaying, position, duration } = useSelector(
     (state: RootState) => state.player,
     shallowEqual
   );
+
   if (!currentTrack) return null;
 
+  // const handleSeekComplete = (value: number) => {
+  //   dispatch(setPosition(value));
+  // };
   return (
     <LinearGradient
       style={{ flex: 1 }}
@@ -105,7 +113,7 @@ const PlayerScreen = () => {
           minimumValue={0}
           maximumValue={duration}
           value={position}
-          onSlidingComplete={handleSeek}
+          // onSlidingComplete={handleSeekComplete}
           minimumTrackTintColor="#FFFFFF"
           maximumTrackTintColor="#CCCCCC"
           thumbTintColor="#FFFFFF"
@@ -119,17 +127,21 @@ const PlayerScreen = () => {
         <TouchableOpacity>
           <Shuffle size={20} color={"white"} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handlePlayPrevious}>
+        <TouchableOpacity onPress={() => dispatch(playPreviousTrack())}>
           <SkipBack size={32} fill={"white"} color={"white"} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={togglePlayPause}>
+        <TouchableOpacity
+          onPress={() =>
+            dispatch(isPlaying ? pauseTrack() : playTrack(currentTrack))
+          }
+        >
           {isPlaying ? (
             <CirclePause color={"white"} size={60} strokeWidth={1.5} />
           ) : (
             <CirclePlay color={"white"} size={60} strokeWidth={1.5} />
           )}
         </TouchableOpacity>
-        <TouchableOpacity onPress={handlePlayNext}>
+        <TouchableOpacity onPress={() => dispatch(playNextTrack())}>
           <SkipForward size={32} fill={"white"} color={"white"} />
         </TouchableOpacity>
         <TouchableOpacity>
@@ -167,7 +179,7 @@ const PlayerScreen = () => {
       </View>
     </LinearGradient>
   );
-};
+});
 
 const styles = StyleSheet.create({
   modal: {

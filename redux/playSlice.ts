@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Song } from "@/utils/database.types";
-
 interface PlayerState {
   currentTrack: Song | null;
   queue: Song[];
@@ -48,12 +47,14 @@ const playerSlice = createSlice({
       state.queue = queue;
       state.history = history;
       state.trackListId = trackListId;
+      state.currentTrack = queue.length > 0 ? queue[0] : null; // Đảm bảo currentTrack là bài đầu tiên trong hàng đợi
+      state.isPlaying = !!state.currentTrack;
     },
     playTrack: (state, action: PayloadAction<Song>) => {
       // Khi phát bài mới, cập nhật currentTrack mà không thay đổi history
       state.currentTrack = action.payload;
       state.isPlaying = true;
-      state.isVisible = true; // Hiện FloatingPlayer
+      state.isVisible = true;
     },
     playNextTrack: (state) => {
       if (state.currentTrack) {
@@ -82,6 +83,8 @@ const playerSlice = createSlice({
       state.currentTrack = null;
       state.isPlaying = false;
       state.isVisible = false;
+      state.position = 0;
+      state.duration = 0;
     },
   },
 });

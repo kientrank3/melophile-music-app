@@ -144,6 +144,7 @@ const ArtistScreen = () => {
           sroll={false}
           nestedScroll={true}
           id={"artistList" + artistId}
+          onSelectSong={() => {}}
         />
       </View>
       <View className="px-2">

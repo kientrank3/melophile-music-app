@@ -100,6 +100,7 @@ const GenreScreen = () => {
           sroll={false}
           nestedScroll={true}
           id={"genreList" + genreId}
+          onSelectSong={() => {}}
         />
       </View>
       <View>

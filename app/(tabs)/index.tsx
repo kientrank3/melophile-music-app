@@ -260,6 +260,7 @@ const HomeScreen = () => {
               sroll={false}
               nestedScroll={true}
               id={"homeList"}
+              onSelectSong={() => {}}
             />
           </View>
         </View>

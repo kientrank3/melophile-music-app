@@ -123,6 +123,7 @@ const PlaylistScreen = () => {
           sroll={false}
           nestedScroll={true}
           id={"albumList" + albumId}
+          onSelectSong={() => {}}
         />
       </View>
     </ScrollView>

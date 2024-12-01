@@ -8,12 +8,12 @@ import {
   ViewStyle,
   Pressable,
 } from "react-native";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { Pause, Play, X } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { useAudioController } from "@/hooks/useAudioController";
 import { Animated } from "react-native";
+import { killTrack, pauseTrack, playTrack } from "@/redux/playSlice";
 
 interface FloatingPlayerProps {
   style?: ViewStyle;
@@ -34,8 +34,7 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
   }, [isVisible]);
   const router = useRouter();
 
-  const { togglePlayPause, handleKillTrack } = useAudioController();
-
+  const dispatch = useDispatch();
   if (!isVisible || !currentTrack) return null;
   const handlePress = () => {
     router.push("/player");
@@ -61,14 +60,19 @@ const FloatingPlayer: React.FC<FloatingPlayerProps> = ({ style }) => {
           </Text>
         </View>
         <View className="flex-row items-center">
-          <TouchableOpacity onPress={togglePlayPause} className="mx-2">
+          <TouchableOpacity
+            onPress={() =>
+              dispatch(isPlaying ? pauseTrack() : playTrack(currentTrack))
+            }
+            className="mx-2"
+          >
             {isPlaying ? (
               <Pause fill={"white"} color={"white"} size={22} />
             ) : (
               <Play fill={"white"} color={"white"} size={22} />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleKillTrack}>
+          <TouchableOpacity onPress={() => dispatch(killTrack())}>
             <X color={"white"} size={22} />
           </TouchableOpacity>
         </View>

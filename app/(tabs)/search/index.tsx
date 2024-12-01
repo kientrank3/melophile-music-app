@@ -11,17 +11,30 @@ import {
   Modal,
 } from "react-native";
 import { Genre, Song } from "@/utils/database.types";
-import { fetchRandomSongs, getAllGenre } from "@/controllers/database";
+import {
+  fetchRandomSongs,
+  getAllGenre,
+  searchSongsByName,
+} from "@/controllers/database";
 import { TracksList } from "@/components/TrackList";
 
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [songs, setSongs] = useState<Song[]>([]);
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
+  const [isSearching, setIsSearching] = useState(false);
+
   const [genres, setGenres] = useState<Genre[]>([]);
+  const closeModal = () => {
+    setModalVisible(false);
+    setSearchText(""); // Reset nội dung tìm kiếm khi đóng modal
+    setSongs([]); // Xóa danh sách bài hát tìm kiếm
+  };
+
+  // Mở modal
+  const openModal = () => {
+    setModalVisible(true);
+  };
 
   useEffect(() => {
     const fetchGenre = async () => {
@@ -30,13 +43,30 @@ const SearchScreen = () => {
     };
     fetchGenre();
   }, []);
+  const handleSearch = async () => {
+    if (searchText.trim() === "") {
+      setSongs([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await searchSongsByName(searchText);
+      setSongs(results);
+    } catch (error) {
+      console.error("Error searching songs:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchSongs = async () => {
-      const data = await fetchRandomSongs(10);
-      setSongs(data || []);
-    };
-    fetchSongs();
-  }, []);
+    const delaySearch = setTimeout(() => {
+      handleSearch();
+    }, 500); // Thêm debounce để giảm số lần gọi API
+
+    return () => clearTimeout(delaySearch);
+  }, [searchText]);
 
   return (
     <ScrollView stickyHeaderIndices={[1]} className="mt-8">
@@ -56,10 +86,10 @@ const SearchScreen = () => {
         <Camera className="w-8 h-8" color={"#fff"} />
       </View>
       <View className="p-2.5 bg-black">
-        <View className="pl-2.5 flex-row bg-white h-10 items-center rounded-md">
+        <View className="pl-2.5 h-12 flex-row bg-white  items-center rounded-md">
           <TouchableOpacity
             className="h-full w-full flex-row items-center"
-            onPress={toggleModal}
+            onPress={openModal}
           >
             <Search color={"#000"} />
 
@@ -74,18 +104,14 @@ const SearchScreen = () => {
           <Modal
             visible={isModalVisible}
             animationType="slide"
-            transparent={true}
-            onRequestClose={toggleModal}
+            transparent={false}
+            onRequestClose={closeModal}
+            onDismiss={closeModal}
           >
-            <View
-              className="h-14 justify-center mt-8"
-              style={{
-                backgroundColor: "#282828",
-              }}
-            >
-              <View className="flex-row items-center">
+            <View className="h-20 justify-center bg-black">
+              <View className="flex-row items-center h-full mt-8">
                 <TouchableOpacity
-                  onPress={toggleModal}
+                  onPress={closeModal}
                   className="w-16 items-center"
                 >
                   <ArrowLeft size={30} color={"#fff"} />
@@ -95,34 +121,26 @@ const SearchScreen = () => {
                   value={searchText}
                   onChangeText={setSearchText}
                   autoFocus
-                  placeholder="What do you want to play ?"
+                  placeholder="What do you want to play?"
                   placeholderTextColor={"#c4c4c4"}
                   className="text-base font-medium color-white w-10/12 h-full"
                 />
               </View>
             </View>
-            <View className="h-full bg-black">
-              <View>
-                <Text className="color-white text-xl font-semibold p-5">
-                  Các tìm kiếm gần đây
+            <View className="h-full bg-black px-2 py-1">
+              {isSearching ? (
+                <Text className="color-white text-center mt-4">
+                  Searching...
                 </Text>
-                <View className="h-1/2">
-                  <TracksList
-                    songs={songs}
-                    sroll={true}
-                    nestedScroll={true}
-                    id="searchTrackList"
-                  />
-                </View>
-
-                <View className="w-full justify-center items-center py-5">
-                  <TouchableOpacity className="border border-white h-10 rounded-full w-80 justify-center items-center">
-                    <Text className="color-white text-md font-semibold">
-                      Xoá nội dung tìm kiếm gần đây
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+              ) : (
+                <TracksList
+                  songs={songs}
+                  sroll={true}
+                  nestedScroll={true}
+                  id="searchTrackList"
+                  onSelectSong={() => closeModal()}
+                />
+              )}
             </View>
           </Modal>
         </View>
@@ -131,9 +149,9 @@ const SearchScreen = () => {
         <Text className="px-2 py-1 text-[18px] font-semibold text-white">
           Duyệt tìm tất cả
         </Text>
-        <View className="flex-row flex-wrap">
+        <View className="flex-row flex-wrap px-2">
           {genres.map((item) => (
-            <View key={item.id} className="w-1/2">
+            <View key={item.id} className="w-1/2 ">
               <TrackListGenre genre={item} />
             </View>
           ))}
