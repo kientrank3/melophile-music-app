@@ -115,30 +115,28 @@ export default function Login() {
         onRequestClose={toggleModal}
       >
         <View className="flex-1 justify-start bg-black bg-opacity-50 p-4">
-          <View className="bg-black p-6 rounded-t-3xl">
-            <TouchableOpacity onPress={toggleModal} className="mb-4 self-start">
+          <View className="flex flex-row justify-start gap-2 pt-6">
+            <TouchableOpacity onPress={toggleModal} className="self-start">
               <AntDesign name="arrowleft" size={24} color="white" />
             </TouchableOpacity>
-            <Text className="text-white text-2xl font-bold mb-6">Login</Text>
-            <Text className="text-white text-lg font-bold mb-2">
+            <Text className="text-white text-3xl font-bold mb-2">Login</Text>
+          </View>
+          <View className="bg-black rounded-t-3xl pt-4">
+            <Text className="text-white text-2xl font-bold mb-2">
               Your username
             </Text>
             <TextInput
               value={username}
               onChangeText={setUsername}
-              className="bg-gray-700 text-white p-4 rounded-lg mb-4"
-              placeholder="Enter username"
-              placeholderTextColor="#888"
+              className="bg-gray-700 text-white p-5 rounded mb-4"
             />
-            <Text className="text-white text-lg font-bold mb-2">
+            <Text className="text-white text-2xl font-bold mb-2">
               Your password
             </Text>
             <TextInput
               value={password}
               onChangeText={setPassword}
-              className="bg-gray-700 text-white p-4 rounded-lg mb-4"
-              placeholder="Enter password"
-              placeholderTextColor="#888"
+              className="bg-gray-700 text-white p-5 rounded mb-4"
               secureTextEntry
             />
             <TouchableOpacity

@@ -18,7 +18,7 @@ import { colors } from "@/constants/Tokens";
 import { TracksList } from "@/components/TrackList";
 
 const PlaylistScreen = () => {
-  const { albumId } = useLocalSearchParams();
+  const { albumId, songs: likedSongsParam } = useLocalSearchParams();
   const router = useRouter();
   const [album, setAlbum] = useState<Album | null>(null);
   const [tracks, setTrack] = useState<Song[]>([]);
@@ -37,22 +37,33 @@ const PlaylistScreen = () => {
     }
   }, [albumId, navigation]);
   useEffect(() => {
-    const fetchAlbum = async () => {
-      const id = Array.isArray(albumId) ? albumId[0] : albumId;
-      const data = await getAlbumWithId(parseInt(id));
-      setAlbum(data || []);
-    };
-    fetchAlbum();
-  }, []);
-  useEffect(() => {
-    const fetchSong = async () => {
-      if (album) {
-        const data = await fetchSongsByAlbum(album.id);
-        setTrack(data || []);
+    if (likedSongsParam) {
+      try {
+        const likedSongs = JSON.parse(likedSongsParam as string);
+        setTrack(likedSongs);
+      } catch (error) {
+        console.error("Error parsing liked songs:", error);
       }
-    };
-    fetchSong();
-  }, [album?.id]);
+    } else if (albumId) {
+      const fetchAlbum = async () => {
+        const id = Array.isArray(albumId) ? albumId[0] : albumId;
+        const data = await getAlbumWithId(parseInt(id));
+        setAlbum(data || []);
+      };
+      fetchAlbum();
+    }
+  }, [albumId, likedSongsParam]);
+  useEffect(() => {
+    if (album && !likedSongsParam) {
+      const fetchSong = async () => {
+        if (album) {
+          const data = await fetchSongsByAlbum(album.id);
+          setTrack(data || []);
+        }
+      };
+      fetchSong();
+    }
+  }, [album?.id, likedSongsParam]);
   return (
     <ScrollView className="mt-8">
       <View className="flex justify-center items-center">
@@ -70,7 +81,7 @@ const PlaylistScreen = () => {
           className="h-40 w-40 items-center"
         />
         <Text className="text-white text-lg w-full py-1.5 px-2">
-          {album?.title}
+          {likedSongsParam ? "Liked Songs" : album?.title}
         </Text>
         <Text className="text-white text-sm w-full py-1 px-2">
           {album?.create_date}

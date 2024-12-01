@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import {
   View,
@@ -10,6 +10,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/authContext";
+import supabase from "@/utils/supabase";
+import { Song } from "@/utils/database.types";
+import { useRouter } from "expo-router";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -22,53 +25,21 @@ type LibraryItem = {
   info?: string;
   icon?: string;
   imageUri?: string;
+  onPress?: () => void;
 };
-
-const data: LibraryItem[] = [
-  {
-    id: "1",
-    type: "playlist",
-    name: "Liked Songs",
-    info: "58 songs",
-    icon: "heart",
-  },
-  {
-    id: "2",
-    type: "artist",
-    name: "Lolo Zouaï",
-    imageUri:
-      "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-  },
-  {
-    id: "3",
-    type: "artist",
-    name: "Lana Del Rey",
-    imageUri:
-      "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-  },
-  {
-    id: "4",
-    type: "playlist",
-    name: "Front Left",
-    info: "Playlist • Spotify",
-    imageUri:
-      "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-  },
-  {
-    id: "5",
-    type: "artist",
-    name: "Marvin Gaye",
-    imageUri:
-      "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
-  },
-];
 
 const LibraryScreen = () => {
   const navigation = useNavigation<NavigationProp<LibraryParamList>>();
   const { user } = useAuth();
+  const [likedSongsCount, setLikedSongsCount] = useState<number>(0);
+  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+  const router = useRouter();
 
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
-    <TouchableOpacity className="flex-row items-center p-4">
+    <TouchableOpacity
+      className="flex-row items-center p-4"
+      onPress={item.onPress}
+    >
       {item.icon ? (
         <Ionicons
           name={item.icon as any}
@@ -91,6 +62,85 @@ const LibraryScreen = () => {
     </TouchableOpacity>
   );
 
+  useEffect(() => {
+    const fetchLikedSongsCount = async () => {
+      if (user) {
+        const { data: favoriteSongs, error } = await supabase
+          .from("FavoriteSong")
+          .select("song_id")
+          .eq("user_id", user.id);
+
+        if (error) {
+          console.error("Error fetching liked songs:", error);
+          return;
+        }
+
+        const songIds = favoriteSongs.map((item) => item.song_id);
+
+        const { data: songs, error: songError } = await supabase
+          .from("Song") // Replace with your actual songs table name
+          .select("*")
+          .in("id", songIds);
+
+        if (songError) {
+          console.error("Error fetching songs:", songError);
+        } else {
+          setLikedSongs(songs);
+          setLikedSongsCount(songs.length);
+        }
+      }
+    };
+
+    fetchLikedSongsCount();
+  }, [user]);
+  const handleLikedSongsPress = () => {
+    router.push({
+      pathname: "/playlist/[albumId]",
+      params: {
+        albumId: JSON.stringify(user?.id),
+        songs: JSON.stringify(likedSongs), // Convert to JSON string
+      },
+    });
+  };
+  const data: LibraryItem[] = [
+    {
+      id: "1",
+      type: "playlist",
+      name: "Liked Songs",
+      info: `${likedSongsCount} songs`,
+      icon: "heart",
+      onPress: handleLikedSongsPress,
+    },
+    {
+      id: "2",
+      type: "artist",
+      name: "Lolo Zouaï",
+      imageUri:
+        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
+    },
+    {
+      id: "3",
+      type: "artist",
+      name: "Lana Del Rey",
+      imageUri:
+        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
+    },
+    {
+      id: "4",
+      type: "playlist",
+      name: "Front Left",
+      info: "Playlist • Spotify",
+      imageUri:
+        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
+    },
+    {
+      id: "5",
+      type: "artist",
+      name: "Marvin Gaye",
+      imageUri:
+        "https://img.freepik.com/premium-vector/cute-cat-cartoon-vector-illustration_921448-1392.jpg",
+    },
+  ];
   return (
     <View className="flex-1 bg-black">
       {/* Header */}
