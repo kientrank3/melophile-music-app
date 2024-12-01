@@ -323,3 +323,42 @@ export const fetchRandomArtists = async (limit: number) => {
 
   return data;
 };
+
+export const searchSongsByName = async (
+  searchText: string
+): Promise<Song[]> => {
+  try {
+    const { data, error } = await supabase
+      .from("Song")
+      .select(
+        `
+        id,
+        title,
+        url,
+        imageUrl,
+        genre_id,
+        artist_id,
+        Artist (name)
+      `
+      )
+      .ilike("title", `%${searchText}%`); // Sử dụng ilike để tìm kiếm không phân biệt chữ hoa/thường
+
+    if (error) {
+      console.error("Error searching songs by name:", error);
+      return [];
+    }
+
+    return data.map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      url: row.url,
+      imageUrl: row.imageUrl,
+      genre_id: row.genre_id,
+      artist_id: row.artist_id,
+      artist_name: row.Artist?.name || "Unknown Artist",
+    }));
+  } catch (error) {
+    console.error("Error searching songs:", error);
+    return [];
+  }
+};

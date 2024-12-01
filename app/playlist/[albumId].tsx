@@ -129,7 +129,13 @@ const PlaylistScreen = () => {
         </View>
       </View>
       <View className="pb-10">
-        <TracksList songs={tracks} sroll={false} nestedScroll={true} />
+        <TracksList
+          songs={tracks}
+          sroll={false}
+          nestedScroll={true}
+          id={"albumList" + albumId}
+          onSelectSong={() => {}}
+        />
       </View>
     </ScrollView>
   );

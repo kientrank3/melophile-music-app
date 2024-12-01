@@ -255,7 +255,13 @@ const HomeScreen = () => {
             <CirclePlay color={"white"} />
           </View>
           <View className="bg-gray-800 rounded-xl p-1 h-100">
-            <TracksList songs={songs} sroll={false} nestedScroll={true} />
+            <TracksList
+              songs={songs}
+              sroll={false}
+              nestedScroll={true}
+              id={"homeList"}
+              onSelectSong={() => {}}
+            />
           </View>
         </View>
         <View className="p-2">

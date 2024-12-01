@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Song } from "@/utils/database.types";
-import { Audio } from "expo-av";
-
 interface PlayerState {
   currentTrack: Song | null;
   queue: Song[];
@@ -10,6 +8,7 @@ interface PlayerState {
   isVisible: boolean;
   position: number;
   duration: number;
+  trackListId: string;
 }
 
 const initialState: PlayerState = {
@@ -20,6 +19,7 @@ const initialState: PlayerState = {
   isVisible: false,
   position: 0,
   duration: 0,
+  trackListId: "",
 };
 
 const playerSlice = createSlice({
@@ -29,22 +29,32 @@ const playerSlice = createSlice({
     setPosition: (state, action: PayloadAction<number>) => {
       state.position = action.payload;
     },
+    setCurrentTrackList: (state, action: PayloadAction<string>) => {
+      state.trackListId = action.payload;
+    },
     setDuration: (state, action: PayloadAction<number>) => {
       state.duration = action.payload;
     },
     initQueue: (
       state,
-      action: PayloadAction<{ queue: Song[]; history: Song[] }>
+      action: PayloadAction<{
+        queue: Song[];
+        history: Song[];
+        trackListId: string;
+      }>
     ) => {
-      const { queue, history } = action.payload;
+      const { queue, history, trackListId } = action.payload;
       state.queue = queue;
       state.history = history;
+      state.trackListId = trackListId;
+      state.currentTrack = queue.length > 0 ? queue[0] : null; // Đảm bảo currentTrack là bài đầu tiên trong hàng đợi
+      state.isPlaying = !!state.currentTrack;
     },
     playTrack: (state, action: PayloadAction<Song>) => {
       // Khi phát bài mới, cập nhật currentTrack mà không thay đổi history
       state.currentTrack = action.payload;
       state.isPlaying = true;
-      state.isVisible = true; // Hiện FloatingPlayer
+      state.isVisible = true;
     },
     playNextTrack: (state) => {
       if (state.currentTrack) {
@@ -73,6 +83,8 @@ const playerSlice = createSlice({
       state.currentTrack = null;
       state.isPlaying = false;
       state.isVisible = false;
+      state.position = 0;
+      state.duration = 0;
     },
   },
 });
@@ -86,5 +98,6 @@ export const {
   playPreviousTrack,
   pauseTrack,
   killTrack,
+  setCurrentTrackList,
 } = playerSlice.actions;
 export default playerSlice.reducer;
