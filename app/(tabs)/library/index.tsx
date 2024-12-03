@@ -19,7 +19,9 @@ import { RootState } from "@/redux/store";
 import { setFavorites } from "@/redux/favoritesSlice";
 import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
 import { playTrack } from "@/redux/playSlice";
-import { getArtistWithId } from "@/controllers/database";
+import { getArtistWithId, getSongWithId } from "@/controllers/database";
+import { TrackListItem } from "@/components/TrackListItem";
+import { handleTrackSelect } from "@/utils/trackUtils";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -48,7 +50,10 @@ const LibraryScreen = () => {
   const loadRecentItems = async () => {
     if (user) {
       const items = await fetchRecentItems(user.id);
-      const formattedItems: LibraryItem[] = items.map((item) => ({
+      const filteredItems = items.filter(
+        (item) => item.type === "album" || item.type === "artist"
+      );
+      const formattedItems: LibraryItem[] = filteredItems.map((item) => ({
         id: item.item_id,
         type: item.type,
         name: item.name,
@@ -146,7 +151,7 @@ const LibraryScreen = () => {
           url: songData.url,
         };
 
-        dispatch(playTrack(track));
+        //dispatch(playTrack(track));
       } catch (error) {
         console.error("Error fetching song details:", error);
         Alert.alert("Error", "An error occurred while fetching song details.");
