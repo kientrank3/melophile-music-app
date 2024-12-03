@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Modal,
   Alert,
   TextInput,
+  Platform,
 } from "react-native";
 import { FontAwesome, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -15,6 +16,8 @@ import supabase from "@/utils/supabase";
 import { useDispatch } from "react-redux";
 import { login } from "@/redux/authSlice";
 import store from "@/redux/store";
+import * as Google from "expo-auth-session/providers/google";
+import { makeRedirectUri } from "expo-auth-session";
 
 export default function Login() {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -25,6 +28,44 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: Platform.select({
+      ios: "304315761919-rqmfqabghte1rtuq1co121sk2t1a4dgl.apps.googleusercontent.com",
+      android:
+        "304315761919-rqmfqabghte1rtuq1co121sk2t1a4dgl.apps.googleusercontent.com",
+    }),
+  });
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+      console.log("Google ID Token:", id_token); // Lưu thông tin người dùng vào Redux hoặc Supabase
+      handleGoogleSignIn(id_token);
+    }
+  }, [response]);
+  const handleGoogleSignIn = async (id_token: any) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithIdToken(id_token);
+
+      if (error) throw new Error(error.message);
+
+      const user = {
+        id: parseInt(data.user.id, 10),
+        user_name: data.user.user_metadata.username,
+        email: data.user.email || "",
+        name: data.user.user_metadata.full_name,
+        urlImage: data.user.user_metadata.picture,
+        phone_number: data.user.user_metadata.phone_number,
+        password: "",
+      };
+
+      dispatch(login(user)); // Lưu thông tin người dùng vào Redux
+      Alert.alert("Đăng nhập thành công", "Chào mừng bạn quay lại!");
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Lỗi đăng nhập", (error as Error).message);
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -43,13 +84,9 @@ export default function Login() {
       }
 
       const currentUser = store.getState().auth.user;
-
-      // Chỉ dispatch nếu user mới khác với user hiện tại
       if (JSON.stringify(currentUser) !== JSON.stringify(user)) {
         dispatch(login(user));
       }
-      // Lưu thông tin đăng nhập
-      //await AsyncStorage.setItem("user", JSON.stringify(user));
 
       // Điều hướng đến Home
       Alert.alert("Đăng nhập thành công", "Chào mừng bạn quay lại!");
@@ -83,7 +120,11 @@ export default function Login() {
             Sign up free
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="bg-zinc-950 border rounded-full flex-row items-center justify-center space-x-4 mt-4 p-5">
+        <TouchableOpacity
+          className="bg-zinc-950 border rounded-full flex-row items-center justify-center space-x-4 mt-4 p-5"
+          onPress={() => promptAsync()}
+          disabled={!request}
+        >
           <FontAwesome name="google" size={24} color="red" />
           <Text className="text-white font-bold text-center text-lg pl-2">
             Sign up with Google

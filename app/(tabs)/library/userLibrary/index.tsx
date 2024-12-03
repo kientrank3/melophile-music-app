@@ -14,10 +14,13 @@ import {
 import { useAuth } from "@/hooks/authContext";
 import supabase from "@/utils/supabase";
 import { useRouter } from "expo-router";
+import { updateUser } from "@/redux/authSlice";
+import { useDispatch } from "react-redux";
 
 const UserLibraryScreen = () => {
   const { user } = useAuth();
   const router = useRouter();
+  const dispatch = useDispatch();
   const [username, setUsername] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [playlists, setPlaylists] = useState<any[]>([]);
@@ -36,8 +39,8 @@ const UserLibraryScreen = () => {
     if (error) {
       console.log("Error updating username:", error);
     } else {
+      dispatch(updateUser({ ...user, user_name: username }));
       console.log("Username updated successfully:", data);
-      user.user_name = username;
     }
     setModalVisible(false);
   };
