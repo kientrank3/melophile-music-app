@@ -81,13 +81,11 @@ const SignupScreen = () => {
 
   return (
     <ScrollView className="flex-1 bg-black p-4 mt-4">
-      <View className="flex flex-row">
-        <TouchableOpacity onPress={() => router.back()} className="mb-4">
+      <View className="flex flex-row items-center mb-6">
+        <TouchableOpacity onPress={() => router.back()} className="mr-2">
           <AntDesign name="arrowleft" size={24} color="white" />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-bold mb-6">
-          Create account
-        </Text>
+        <Text className="text-white text-2xl font-bold ">Create account</Text>
       </View>
 
       <Text className="text-white text-2xl font-bold mb-2">
