@@ -362,3 +362,60 @@ export const searchSongsByName = async (
     return [];
   }
 };
+export const fetchSongsByPlaylist = async (playlistId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from("PlaylistSong")
+      .select(
+        `
+        song_id,
+        Song (
+          id,
+          title,
+          url,
+          imageUrl,
+          artist_id,
+          genre_id,
+          Artist (
+            name
+          )
+        )
+      `
+      )
+      .eq("playlist_id", playlistId);
+
+    if (error) {
+      console.error("Error fetching songs by playlist:", error);
+      return [];
+    }
+    if (!data) {
+      console.error("No data returned for playlist:", playlistId);
+      return [];
+    }
+
+    // Map the data to the Song type
+    const songs: Song[] = data
+      .map((row: any) => {
+        const song = row.Song;
+        if (!song) {
+          console.error("Song data is missing for row:", row);
+          return null;
+        }
+        return {
+          id: song.id,
+          title: song.title,
+          url: song.url,
+          imageUrl: song.imageUrl,
+          artist_id: song.artist_id,
+          genre_id: song.genre_id,
+          artist_name: song.Artist?.name || "Unknown Artist",
+        };
+      })
+      .filter((song) => song !== null);
+
+    return songs;
+  } catch (error) {
+    console.error("Error in fetchSongsByPlaylist:", error);
+    return [];
+  }
+};

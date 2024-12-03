@@ -8,6 +8,9 @@ import {
   FlatList,
   ListRenderItem,
   Alert,
+  Modal,
+  TextInput,
+  StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/authContext";
@@ -18,10 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { setFavorites } from "@/redux/favoritesSlice";
 import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
-import { playTrack } from "@/redux/playSlice";
 import { getArtistWithId, getSongWithId } from "@/controllers/database";
-import { TrackListItem } from "@/components/TrackListItem";
-import { handleTrackSelect } from "@/utils/trackUtils";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -45,6 +45,8 @@ const LibraryScreen = () => {
   const likedSongs = useSelector((state: RootState) => state.favorites.songs);
   const likedSongsCount = likedSongs.length;
   const [viewMode, setViewMode] = useState<"all" | "artists" | "albums">("all");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
   const dispatch = useDispatch();
   const router = useRouter();
   const loadRecentItems = async () => {
@@ -83,7 +85,54 @@ const LibraryScreen = () => {
     fetchFavoriteSongs();
     loadRecentItems();
   }, [user, dispatch, fetchFavoriteSongs, loadRecentItems]);
+  const handleAddPlaylist = async () => {
+    if (!newPlaylistName.trim()) {
+      Alert.alert("Error", "Playlist name cannot be empty.");
+      return;
+    }
+    const { data: existingPlaylists, error: fetchError } = await supabase
+      .from("Playlist")
+      .select("name")
+      .eq("user_id", user?.id);
 
+    if (fetchError) {
+      console.error("Error fetching playlists:", fetchError);
+      return;
+    }
+
+    const isDuplicate = existingPlaylists.some(
+      (playlist) =>
+        playlist.name.toLowerCase() === newPlaylistName.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      Alert.alert(
+        "Error",
+        "Playlist name already exists. Please choose a different name."
+      );
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("Playlist")
+      .insert([
+        {
+          name: newPlaylistName,
+          user_id: user?.id,
+          imageUrl:
+            "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/albumImage/default.png",
+        },
+      ]);
+
+    if (error) {
+      console.error("Error creating playlist:", error);
+      Alert.alert("Error", "Failed to create playlist.");
+    } else {
+      Alert.alert("Success", "Playlist created successfully.");
+      setIsModalVisible(false);
+      setNewPlaylistName("");
+    }
+  };
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity
       className="flex-row items-center p-4"
@@ -209,7 +258,7 @@ const LibraryScreen = () => {
           </TouchableOpacity>
           <Text className="text-white text-2xl font-bold px-4">Library</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setIsModalVisible(true)}>
           <Ionicons name="add" size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -270,7 +319,54 @@ const LibraryScreen = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 80 }}
       />
+      {/* Modal for creating a new playlist */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        style={styles.modal}
+        className="rounded-t-lg"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-center items-center mt-20 rounded-t-lg">
+          <View className="w-full h-full p-6 bg-gray-800 rounded-none relative">
+            {/* Nút tắt modal (dấu X) */}
+            <TouchableOpacity
+              onPress={() => setIsModalVisible(false)}
+              className="absolute top-4 right-4"
+            >
+              <Text className="text-white text-4xl">&times;</Text> {/* Dấu X */}
+            </TouchableOpacity>
+
+            <Text className="text-white text-2xl font-semibold mb-4 text-center">
+              Create New Playlist
+            </Text>
+
+            <TextInput
+              placeholder="Enter playlist name"
+              value={newPlaylistName}
+              onChangeText={setNewPlaylistName}
+              className="bg-gray-700 text-white p-4 rounded mb-4 border border-gray-600"
+            />
+
+            <TouchableOpacity
+              onPress={handleAddPlaylist}
+              className="bg-green-500 py-3 px-6 rounded-full justify-center items-center mt-4"
+            >
+              <Text className="text-white text-base font-semibold">Create</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
+const styles = StyleSheet.create({
+  modal: {
+    justifyContent: "flex-end",
+    borderTopLeftRadius: 17,
+    borderTopRightRadius: 17,
+    margin: 0,
+  },
+});
 export default LibraryScreen;

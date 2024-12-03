@@ -1,59 +1,112 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 //import {LinearGradient} from "react-native-linear-gradient";
 import { LinearGradient } from "expo-linear-gradient";
-import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  Modal,
+} from "react-native";
 import { useAuth } from "@/hooks/authContext";
-import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
-
-type LibraryItem = {
-  id: string;
-  type: "album" | "artist" | "song";
-  name: string;
-  info?: string;
-  icon?: string;
-  imageUrl?: string;
-  onPress?: () => void;
-  item_id?: string;
-};
+import supabase from "@/utils/supabase";
+import { useRouter } from "expo-router";
 
 const UserLibraryScreen = () => {
   const { user } = useAuth();
-  const [recentItems, setRecentItems] = useState<LibraryItem[]>([]);
-  const loadRecentItems = async () => {
-    if (user) {
-      const items = await fetchRecentItems(user.id);
-      const formattedItems: LibraryItem[] = items.map((item) => ({
-        id: item.item_id,
-        type: item.type,
-        name: item.name,
-        info: item.info,
-        imageUrl: item.imageUrl,
-        item_id: item.item_id,
-      }));
-      setRecentItems(formattedItems);
-    }
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const handleEditProfile = () => {
+    setModalVisible(true);
   };
-  const data: LibraryItem[] = [
-    ...recentItems.map((item) => ({
-      ...item,
-    })),
-  ];
 
-  const renderItem = ({ item }: { item: LibraryItem }) => (
-    <TouchableOpacity className="flex-row items-center justify-between p-4">
+  const handleSaveUsername = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("User") // Replace with your actual users table name
+      .update({ user_name: username })
+      .eq("id", user.id);
+
+    if (error) {
+      console.log("Error updating username:", error);
+    } else {
+      console.log("Username updated successfully:", data);
+      user.user_name = username;
+    }
+    setModalVisible(false);
+  };
+
+  useEffect(() => {
+    const loadPlaylists = async () => {
+      if (user) {
+        const { data: playlists, error: playlistError } = await supabase
+          .from("Playlist")
+          .select("*")
+          .eq("user_id", user.id);
+
+        if (playlistError) {
+          console.log("Error fetching playlists:", playlistError);
+          return;
+        }
+
+        // Fetch song counts for each playlist
+        const playlistsWithCounts = await Promise.all(
+          playlists.map(async (playlist) => {
+            const { count, error: countError } = await supabase
+              .from("PlaylistSong")
+              .select("song_id", { count: "exact" })
+              .eq("playlist_id", playlist.id);
+
+            if (countError) {
+              console.log(
+                `Error fetching song count for playlist ${playlist.id}:`,
+                countError
+              );
+              return { ...playlist, song_count: 0 };
+            }
+
+            return { ...playlist, song_count: count };
+          })
+        );
+
+        setPlaylists(playlistsWithCounts);
+      }
+    };
+    loadPlaylists();
+  }, [user, playlists]);
+
+  const handlePlaylistPress = (playlistId: number) => {
+    router.push({
+      pathname: "/playlist/[albumId]",
+      params: {
+        albumId: playlistId,
+        isPlaylist: "true",
+      },
+    });
+  };
+  const renderPlaylistItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      className="flex-row items-center justify-between p-4"
+      onPress={() => handlePlaylistPress(item.id)}
+    >
       <View className="flex-row items-center space-x-4">
         <Image
           source={{ uri: item.imageUrl }}
-          className="w-12 h-12 rounded-md"
+          style={{ width: 50, height: 50, marginRight: 10 }}
         />
         <View className="m-1">
-          <Text className="text-white text-base">{item.name}</Text>
-          <Text className="text-gray-400 text-sm">{item.info}</Text>
+          <Text className="text-white text-base font-semibold">
+            {item.name}
+          </Text>
+          <Text className="text-gray-400 text-sm">{item.song_count} songs</Text>
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={24} color="gray" />
     </TouchableOpacity>
   );
 
@@ -74,6 +127,7 @@ const UserLibraryScreen = () => {
           />
           <TouchableOpacity
             className="mt-4 bg-gray-600 py-1 px-4 rounded-full"
+            onPress={handleEditProfile}
             // onPress={() => navigation.navigate("userSettings/index")}
           >
             <Text className="text-white text-sm">Edit Profile</Text>
@@ -99,8 +153,8 @@ const UserLibraryScreen = () => {
       <View className="flex-1 mt-6">
         <Text className="text-white text-lg px-4">Playlists</Text>
         <FlatList
-          data={data}
-          renderItem={renderItem}
+          data={playlists}
+          renderItem={renderPlaylistItem}
           keyExtractor={(item) => item.id}
           className="mt-2"
         />
@@ -108,6 +162,32 @@ const UserLibraryScreen = () => {
           <Text className="text-gray-400">See all playlists</Text>
         </TouchableOpacity>
       </View>
+      {/* Edit Username Modal */}
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <View className="bg-white p-4 rounded-md">
+            <Text className="text-lg font-bold mb-2">Edit Username</Text>
+            <TextInput
+              value={username}
+              onChangeText={setUsername}
+              className="border p-2 mb-4"
+              placeholder="Enter new username"
+            />
+            <TouchableOpacity
+              className="bg-blue-500 py-2 px-4 rounded-md mb-2"
+              onPress={handleSaveUsername}
+            >
+              <Text className="text-white text-center">Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="bg-gray-500 py-2 px-4 rounded-md"
+              onPress={() => setModalVisible(false)}
+            >
+              <Text className="text-white text-center">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

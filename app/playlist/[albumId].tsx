@@ -1,7 +1,11 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { fetchSongsByAlbum, getAlbumWithId } from "@/controllers/database";
+import {
+  fetchSongsByAlbum,
+  getAlbumWithId,
+  fetchSongsByPlaylist,
+} from "@/controllers/database";
 import { Album, Song } from "@/utils/database.types";
 import {
   ChevronDown,
@@ -20,7 +24,11 @@ import { logRecentlyPlayed } from "@/controllers/recentlyPlayedController";
 import { useAuth } from "@/hooks/authContext";
 
 const PlaylistScreen = () => {
-  const { albumId, songs: likedSongsParam } = useLocalSearchParams();
+  const {
+    albumId,
+    songs: likedSongsParam,
+    isPlaylist,
+  } = useLocalSearchParams();
   const router = useRouter();
   const { user } = useAuth();
   const [album, setAlbum] = useState<Album | null>(null);
@@ -48,16 +56,23 @@ const PlaylistScreen = () => {
         console.error("Error parsing liked songs:", error);
       }
     } else if (albumId) {
-      const fetchAlbum = async () => {
+      const fetchData = async () => {
         const id = Array.isArray(albumId) ? albumId[0] : albumId;
-        const data = await getAlbumWithId(parseInt(id));
-        setAlbum(data || []);
+        if (isPlaylist) {
+          // Fetch playlist details and songs
+          const data = await fetchSongsByPlaylist(parseInt(id));
+          setTrack(data || []);
+        } else {
+          // Fetch album details and songs
+          const data = await getAlbumWithId(parseInt(id));
+          setAlbum(data || []);
+        }
       };
-      fetchAlbum();
+      fetchData();
     }
-  }, [albumId, likedSongsParam]);
+  }, [albumId, likedSongsParam, isPlaylist]);
   useEffect(() => {
-    if (album && !likedSongsParam) {
+    if (album && !likedSongsParam && !isPlaylist) {
       const fetchSong = async () => {
         if (album) {
           const data = await fetchSongsByAlbum(album.id);
@@ -66,12 +81,12 @@ const PlaylistScreen = () => {
       };
       fetchSong();
     }
-  }, [album?.id, likedSongsParam]);
+  }, [album?.id, likedSongsParam, isPlaylist]);
   useEffect(() => {
-    if (user && album) {
+    if (user && album && !isPlaylist) {
       logRecentlyPlayed(user.id, album.id, "album");
     }
-  }, [user, album]);
+  }, [user, album, isPlaylist]);
   return (
     <ScrollView className="mt-8">
       <View className="flex justify-center items-center">

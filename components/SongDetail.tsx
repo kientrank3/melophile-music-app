@@ -8,6 +8,8 @@ import {
   ScrollView,
   FlatList,
   ActivityIndicator,
+  Alert,
+  Modal,
 } from "react-native";
 import {
   Heart,
@@ -35,7 +37,6 @@ import {
   setFavorites,
 } from "@/redux/favoritesSlice";
 import { useDispatch } from "react-redux";
-import { logRecentlyPlayed } from "@/controllers/recentlyPlayedController";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -51,6 +52,8 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const { user } = useAuth();
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [isPlaylistModalVisible, setPlaylistModalVisible] = useState(false);
 
   const fetchSong = async () => {
     try {
@@ -117,7 +120,77 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
       console.error("Error fetching artist:", error);
     }
   };
+  const fetchPlaylists = async () => {
+    const { data: playlistData, error } = await supabase
+      .from("Playlist")
+      .select("*")
+      .eq("user_id", user?.id);
 
+    if (error) {
+      console.error("Error fetching playlists:", error);
+    } else {
+      setPlaylists(playlistData);
+    }
+  };
+
+  const addToPlaylist = async (playlistId: string) => {
+    try {
+      // Check if the playlist already has songs
+      const { data: existingSongs, error: fetchError } = await supabase
+        .from("PlaylistSong")
+        .select("song_id")
+        .eq("playlist_id", playlistId);
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // Insert the song into the PlaylistSongs table
+      const { error: insertError } = await supabase
+        .from("PlaylistSong")
+        .insert([{ playlist_id: playlistId, song_id: song?.id }]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      // If this is the first song added, update the playlist's imageUrl
+      if (existingSongs.length === 0) {
+        const { error: updateError } = await supabase
+          .from("Playlist")
+          .update({ imageUrl: song?.imageUrl })
+          .eq("id", playlistId);
+
+        if (updateError) {
+          throw updateError;
+        }
+      }
+
+      Alert.alert("Success", "Song added to playlist successfully.");
+      setPlaylistModalVisible(false);
+    } catch (error) {
+      console.error("Error adding song to playlist:", error);
+      Alert.alert("Error", "Failed to add song to playlist.");
+    }
+  };
+  const renderPlaylistOption = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      className="flex-row items-center justify-between p-4 bg-gray-800"
+      onPress={() => addToPlaylist(item.id)}
+    >
+      <View className="flex-row items-center space-x-4">
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={{ width: 50, height: 50, marginRight: 10 }}
+        />
+        <View className="m-1">
+          <Text className="text-white text-base font-semibold">
+            {item.name}
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
   const options = [
     {
       icon: Heart,
@@ -126,7 +199,12 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
       iconColor: isFavorite ? "red" : "white",
     },
     { icon: EyeOff, label: "Hide song", iconColor: "white" },
-    { icon: PlusCircle, label: "Add to playlist", iconColor: "white" },
+    {
+      icon: PlusCircle,
+      label: "Add to playlist",
+      iconColor: "white",
+      action: () => setPlaylistModalVisible(true),
+    },
     { icon: ListMusic, label: "Add to queue", iconColor: "white" },
     { icon: Share, label: "Share", iconColor: "white" },
     { icon: Radio, label: "Go to radio", iconColor: "white" },
@@ -138,6 +216,7 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
 
   useEffect(() => {
     fetchSong();
+    fetchPlaylists();
   }, [songId]);
   if (loading) {
     return (
@@ -189,6 +268,46 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
         keyExtractor={(item) => item.label}
         contentContainerStyle={{ width: "100%", paddingHorizontal: 20 }}
       />
+      {/* Modal for selecting a playlist */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isPlaylistModalVisible}
+        className="rounded-t-lg bg-black/80"
+        onRequestClose={() => setPlaylistModalVisible(false)}
+      >
+        <View className="flex-1 bg-[#121212] justify-center items-center mt-20 rounded-t-lg">
+          <View className="w-full h-full p-6 bg-gray-800 rounded-none relative">
+            <Text className="text-2xl text-white font-semibold mb-4">
+              Select a Playlist
+            </Text>
+            <FlatList
+              data={playlists}
+              renderItem={renderPlaylistOption}
+              keyExtractor={(item) => item.id}
+            />
+            <TouchableOpacity
+              onPress={() => setPlaylistModalVisible(false)}
+              className="absolute top-0 right-0 p-2"
+            >
+              <Text className="text-2xl text-white font-semibold mb-4">X</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        {/* <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <View style={{ width: 300, padding: 20, backgroundColor: "white", borderRadius: 10 }}>
+            <Text style={{ fontSize: 18, marginBottom: 10 }}>Select Playlist</Text>
+            {playlists.map((playlist) => (
+              <TouchableOpacity key={playlist.id} onPress={() => addToPlaylist(playlist.id)}>
+                <Text style={{ padding: 10 }}>{playlist.name}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity onPress={() => setPlaylistModalVisible(false)}>
+              <Text style={{ padding: 10 }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View> */}
+      </Modal>
     </View>
   );
 };
