@@ -49,11 +49,6 @@ const HomeScreen = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      console.log("User information:", user);
-    }
-  }, [user]);
-  useEffect(() => {
     const fetchGenre = async () => {
       const data = await fetchRandomGenres(10);
       setGenres(data || []);
