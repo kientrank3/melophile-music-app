@@ -99,6 +99,7 @@ export const fetchRecentItems = async (userId: number) => {
     .from("RecentlyPlayed")
     .select("item_id, name, type, info, timestamp, imageUrl")
     .eq("user_id", userId)
+    .in("type", ["album", "artist"])
     .order("timestamp", { ascending: false })
     .limit(5);
 
