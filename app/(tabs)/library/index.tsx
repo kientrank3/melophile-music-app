@@ -7,6 +7,7 @@ import {
   Image,
   FlatList,
   ListRenderItem,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/authContext";
@@ -17,6 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { setFavorites } from "@/redux/favoritesSlice";
 import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
+import { playTrack } from "@/redux/playSlice";
+import { getArtistWithId } from "@/controllers/database";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -28,8 +31,9 @@ type LibraryItem = {
   name: string;
   info?: string;
   icon?: string;
-  imageUri?: string;
+  imageUrl?: string;
   onPress?: () => void;
+  item_id?: string;
 };
 
 const LibraryScreen = () => {
@@ -38,40 +42,42 @@ const LibraryScreen = () => {
   const [recentItems, setRecentItems] = useState<LibraryItem[]>([]);
   const likedSongs = useSelector((state: RootState) => state.favorites.songs);
   const likedSongsCount = likedSongs.length;
+  const [viewMode, setViewMode] = useState<"all" | "artists" | "albums">("all");
   const dispatch = useDispatch();
   const router = useRouter();
+  const loadRecentItems = async () => {
+    if (user) {
+      const items = await fetchRecentItems(user.id);
+      const formattedItems: LibraryItem[] = items.map((item) => ({
+        id: item.item_id,
+        type: item.type,
+        name: item.name,
+        info: item.info,
+        imageUrl: item.imageUrl,
+        item_id: item.item_id,
+      }));
+      setRecentItems(formattedItems);
+    }
+  };
+  const fetchFavoriteSongs = async () => {
+    if (user) {
+      const { data: favoriteSongs, error } = await supabase
+        .from("FavoriteSong")
+        .select("song_id, Song(*)")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching favorite songs:", error);
+      } else {
+        const songs = favoriteSongs.map((item) => item.Song);
+        dispatch(setFavorites(songs as unknown as Song[]));
+      }
+    }
+  };
   useEffect(() => {
-    const loadRecentItems = async () => {
-      if (user) {
-        const items = await fetchRecentItems(user.id);
-        const formattedItems: LibraryItem[] = items.map((item) => ({
-          id: item.item_id,
-          type: item.type,
-          name: item.type === "song" ? "Song Name" : "Playlist Name", // Replace with actual name lookup
-          timestamp: item.timestamp,
-        }));
-        setRecentItems(formattedItems);
-      }
-    };
-    const fetchFavoriteSongs = async () => {
-      if (user) {
-        const { data: favoriteSongs, error } = await supabase
-          .from("FavoriteSong")
-          .select("song_id, Song(*)") // Ensure 'Song' is the correct table name
-          .eq("user_id", user.id);
-
-        if (error) {
-          console.error("Error fetching favorite songs:", error);
-        } else {
-          const songs = favoriteSongs.map((item) => item.Song);
-          dispatch(setFavorites(songs as unknown as Song[]));
-        }
-      }
-    };
-
     fetchFavoriteSongs();
     loadRecentItems();
-  }, [user, dispatch]);
+  }, [user, dispatch, fetchFavoriteSongs, loadRecentItems]);
 
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity
@@ -81,14 +87,20 @@ const LibraryScreen = () => {
       {item.icon ? (
         <Ionicons
           name={item.icon as any}
-          size={24}
+          size={40}
           color="white"
-          className="mr-4"
+          style={{ marginRight: 10, padding: 5 }}
         />
       ) : (
         <Image
-          source={{ uri: item.imageUri }}
-          className="w-10 h-10 rounded-full mr-4"
+          source={{ uri: item.imageUrl }}
+          style={{
+            width: 50,
+            height: 50,
+            marginRight: 10,
+            borderRadius: item.type === "artist" ? 25 : 5,
+          }}
+          //className="w-10 h-10 rounded-full mr-4"
         />
       )}
       <View>
@@ -105,10 +117,61 @@ const LibraryScreen = () => {
       pathname: "/playlist/[albumId]",
       params: {
         albumId: JSON.stringify(user?.id),
-        songs: JSON.stringify(likedSongs), // Convert to JSON string
+        songs: JSON.stringify(likedSongs),
       },
     });
   };
+  const handleItemPress = async (item: LibraryItem) => {
+    if (item.type === "song") {
+      try {
+        const { data: songData, error } = await supabase
+          .from("Song")
+          .select("id, title, artist_id, genre_id, imageUrl, url")
+          .eq("id", item.item_id)
+          .single();
+
+        if (error || !songData) {
+          Alert.alert("Error", "Failed to fetch song details.");
+          return;
+        }
+        const artist = await getArtistWithId(songData.artist_id);
+
+        const track = {
+          id: songData.id,
+          title: songData.title,
+          artist_id: songData.artist_id,
+          genre_id: songData.genre_id,
+          artist_name: artist?.name,
+          imageUrl: songData.imageUrl,
+          url: songData.url,
+        };
+
+        dispatch(playTrack(track));
+      } catch (error) {
+        console.error("Error fetching song details:", error);
+        Alert.alert("Error", "An error occurred while fetching song details.");
+      }
+    } else if (item.type === "artist") {
+      router.push({
+        pathname: "/artist/[artistId]",
+        params: {
+          artistId: JSON.stringify(item.item_id), // Convert to JSON string
+        },
+      });
+    } else if (item.type === "album") {
+      router.push({
+        pathname: "/playlist/[albumId]",
+        params: {
+          albumId: JSON.stringify(item.item_id),
+        },
+      });
+    }
+  };
+  const filteredItems = recentItems.filter((item) => {
+    if (viewMode === "artists") return item.type === "artist";
+    if (viewMode === "albums") return item.type === "album";
+    return true; // "all" mode
+  });
   const data: LibraryItem[] = [
     {
       id: "0",
@@ -118,7 +181,10 @@ const LibraryScreen = () => {
       icon: "heart",
       onPress: handleLikedSongsPress,
     },
-    ...recentItems,
+    ...filteredItems.map((item) => ({
+      ...item,
+      onPress: () => handleItemPress(item),
+    })),
   ];
   return (
     <View className="flex-1 bg-black">
@@ -145,14 +211,47 @@ const LibraryScreen = () => {
 
       {/* Filter Section */}
       <View className="flex-row justify-between px-4 mb-4">
-        <TouchableOpacity className="px-3 py-1 bg-gray-800 rounded-full">
-          <Text className="text-white text-sm">Playlists</Text>
+        <TouchableOpacity
+          className={`px-3 py-1 rounded-full ${
+            viewMode === "all" ? "bg-gray-800" : "bg-transparent"
+          }`}
+          onPress={() => setViewMode("all")}
+        >
+          <Text
+            className={`text-sm ${
+              viewMode === "all" ? "text-white" : "text-gray-400"
+            }`}
+          >
+            Playlists
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="px-3 py-1">
-          <Text className="text-gray-400 text-sm">Artists</Text>
+        <TouchableOpacity
+          className={`px-3 py-1 rounded-full ${
+            viewMode === "artists" ? "bg-gray-800" : "bg-transparent"
+          }`}
+          onPress={() => setViewMode("artists")}
+        >
+          <Text
+            className={`text-sm ${
+              viewMode === "artists" ? "text-white" : "text-gray-400"
+            }`}
+          >
+            Artists
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="px-3 py-1">
-          <Text className="text-gray-400 text-sm">Albums</Text>
+        <TouchableOpacity
+          className={`px-3 py-1 rounded-full ${
+            viewMode === "albums" ? "bg-gray-800" : "bg-transparent"
+          }`}
+          onPress={() => setViewMode("albums")}
+        >
+          <Text
+            className={`text-sm ${
+              viewMode === "albums" ? "text-white" : "text-gray-400"
+            }`}
+          >
+            Albums
+          </Text>
         </TouchableOpacity>
       </View>
 

@@ -31,10 +31,13 @@ import { colors } from "@/constants/Tokens";
 import { TracksList } from "@/components/TrackList";
 import { AlbumListItem } from "@/components/AlbumListItem";
 import { ArtistItem } from "@/components/ArtistItem";
+import { logRecentlyPlayed } from "@/controllers/recentlyPlayedController";
+import { useAuth } from "@/hooks/authContext";
 
 const ArtistScreen = () => {
   const { artistId } = useLocalSearchParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [randomArtist, setRandomArtist] = useState<Artist[]>([]);
   const [album, setAlbum] = useState<Album[]>([]);
@@ -53,6 +56,12 @@ const ArtistScreen = () => {
       });
     }
   }, [artistId, navigation]);
+  useEffect(() => {
+    if (user && artist) {
+      // Log the song as recently played
+      logRecentlyPlayed(user.id, artist.id, "artist");
+    }
+  }, [user, artist]);
   useEffect(() => {
     const fetchArtist = async () => {
       const id = Array.isArray(artistId) ? artistId[0] : artistId;
