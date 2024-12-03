@@ -16,10 +16,13 @@ import { RootState } from "@/redux/store";
 import { shallowEqual, useSelector } from "react-redux";
 import { colors } from "@/constants/Tokens";
 import { TracksList } from "@/components/TrackList";
+import { logRecentlyPlayed } from "@/controllers/recentlyPlayedController";
+import { useAuth } from "@/hooks/authContext";
 
 const PlaylistScreen = () => {
   const { albumId, songs: likedSongsParam } = useLocalSearchParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [album, setAlbum] = useState<Album | null>(null);
   const [tracks, setTrack] = useState<Song[]>([]);
   const { isPlaying } = useSelector(
@@ -64,6 +67,11 @@ const PlaylistScreen = () => {
       fetchSong();
     }
   }, [album?.id, likedSongsParam]);
+  useEffect(() => {
+    if (user && album) {
+      logRecentlyPlayed(user.id, album.id, "album");
+    }
+  }, [user, album]);
   return (
     <ScrollView className="mt-8">
       <View className="flex justify-center items-center">

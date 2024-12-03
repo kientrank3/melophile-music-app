@@ -64,12 +64,7 @@ const PlayerScreen = React.memo(() => {
   useEffect(() => {
     if (user && currentTrack) {
       // Log the song as recently played
-      logRecentlyPlayed(
-        user.id,
-        currentTrack.id,
-        "song",
-        currentTrack.imageUrl
-      );
+      logRecentlyPlayed(user.id, currentTrack.id, "song");
     }
   }, [user, currentTrack]);
 

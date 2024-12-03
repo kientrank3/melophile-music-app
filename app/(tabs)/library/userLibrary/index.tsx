@@ -1,55 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 //import {LinearGradient} from "react-native-linear-gradient";
 import { LinearGradient } from "expo-linear-gradient";
 import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/authContext";
+import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
 
-type PlaylistItem = {
+type LibraryItem = {
   id: string;
+  type: "album" | "artist" | "song";
   name: string;
-  likes: number;
-  imageUri: string;
+  info?: string;
+  icon?: string;
+  imageUrl?: string;
+  onPress?: () => void;
+  item_id?: string;
 };
 
-const data: PlaylistItem[] = [
-  {
-    id: "1",
-    name: "Shazam",
-    likes: 7,
-    imageUri:
-      "https://instagram.fsgn2-9.fna.fbcdn.net/v/t51.29350-15/462474156_1186202679107624_4308376934953324283_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE3NTEuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.fsgn2-9.fna.fbcdn.net&_nc_cat=1&_nc_ohc=DUOxalKfVkIQ7kNvgFpOh9C&_nc_gid=3b89bf22d77649b79c02d5c384903519&edm=AONqaaQBAAAA&ccb=7-5&ig_cache_key=MzQ3NDk0ODQ2NDkxODM1MTQ0Nw%3D%3D.3-ccb7-5&oh=00_AYC7G3PRB_KKQT1yCJl18N60kABOMc1ppLat6a0PLl6Fyw&oe=670F3F3D&_nc_sid=4e3341",
-  },
-  {
-    id: "2",
-    name: "Roadtrip",
-    likes: 4,
-    imageUri:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTI9vn8ZoodGfNCU50lWSucaQWuMXyyYXhhpQ&s",
-  },
-  {
-    id: "3",
-    name: "Study",
-    likes: 5,
-    imageUri:
-      "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpgs",
-  },
-];
-
 const UserLibraryScreen = () => {
-  // const navigation = useNavigation<NavigationProp<LibraryParamList>>();
   const { user } = useAuth();
-  const renderItem = ({ item }: { item: PlaylistItem }) => (
+  const [recentItems, setRecentItems] = useState<LibraryItem[]>([]);
+  const loadRecentItems = async () => {
+    if (user) {
+      const items = await fetchRecentItems(user.id);
+      const formattedItems: LibraryItem[] = items.map((item) => ({
+        id: item.item_id,
+        type: item.type,
+        name: item.name,
+        info: item.info,
+        imageUrl: item.imageUrl,
+        item_id: item.item_id,
+      }));
+      setRecentItems(formattedItems);
+    }
+  };
+  const data: LibraryItem[] = [
+    ...recentItems.map((item) => ({
+      ...item,
+    })),
+  ];
+
+  const renderItem = ({ item }: { item: LibraryItem }) => (
     <TouchableOpacity className="flex-row items-center justify-between p-4">
       <View className="flex-row items-center space-x-4">
         <Image
-          source={{ uri: item.imageUri }}
+          source={{ uri: item.imageUrl }}
           className="w-12 h-12 rounded-md"
         />
         <View className="m-1">
           <Text className="text-white text-base">{item.name}</Text>
-          <Text className="text-gray-400 text-sm">{item.likes} likes</Text>
+          <Text className="text-gray-400 text-sm">{item.info}</Text>
         </View>
       </View>
       <Ionicons name="chevron-forward" size={24} color="gray" />
