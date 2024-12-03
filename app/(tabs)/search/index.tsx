@@ -17,14 +17,23 @@ import {
   searchSongsByName,
 } from "@/controllers/database";
 import { TracksList } from "@/components/TrackList";
+import { useAuth } from "@/hooks/authContext";
 
 const SearchScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [songs, setSongs] = useState<Song[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-
   const [genres, setGenres] = useState<Genre[]>([]);
+  const { user } = useAuth();
+  useEffect(() => {
+    const fetchGenre = async () => {
+      const data = await getAllGenre();
+      setGenres(data || []);
+    };
+    fetchGenre();
+  }, []);
+
   const closeModal = () => {
     setModalVisible(false);
     setSearchText(""); // Reset nội dung tìm kiếm khi đóng modal
@@ -36,13 +45,6 @@ const SearchScreen = () => {
     setModalVisible(true);
   };
 
-  useEffect(() => {
-    const fetchGenre = async () => {
-      const data = await getAllGenre();
-      setGenres(data || []);
-    };
-    fetchGenre();
-  }, []);
   const handleSearch = async () => {
     if (searchText.trim() === "") {
       setSongs([]);
@@ -76,7 +78,7 @@ const SearchScreen = () => {
             <Image
               className="w-10 h-10 rounded-full"
               source={{
-                uri: "https://i.vietgiaitri.com/2024/4/27/anh-trai-say-hi-hoi-tu-loat-ten-tuoi-cuc-hot-vi-sao-lai-co-30-thi-sinh-271-7150873.jpg",
+                uri: user?.urlImage,
               }}
               alt="image"
             />
@@ -127,9 +129,9 @@ const SearchScreen = () => {
                 />
               </View>
             </View>
-            <View className="h-full bg-black px-2 py-1">
+            <View className="h-full bg-black px-2 py-1 pb-24">
               {isSearching ? (
-                <Text className="color-white text-center mt-4">
+                <Text className="color-white text-center text-lg mt-4">
                   Searching...
                 </Text>
               ) : (
