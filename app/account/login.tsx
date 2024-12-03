@@ -79,25 +79,25 @@ export default function Login() {
           className="bg-green-500 border p-5 rounded-full flex-row space-x-4 items-center justify-center"
           onPress={() => router.push("/account/signup")}
         >
-          <Text className="text-white font-bold text-center text-lg">
+          <Text className="text-white font-bold text-center text-lg ">
             Sign up free
           </Text>
         </TouchableOpacity>
         <TouchableOpacity className="bg-zinc-950 border rounded-full flex-row items-center justify-center space-x-4 mt-4 p-5">
           <FontAwesome name="google" size={24} color="red" />
-          <Text className="text-white font-bold text-center text-lg">
+          <Text className="text-white font-bold text-center text-lg pl-2">
             Sign up with Google
           </Text>
         </TouchableOpacity>
         <TouchableOpacity className="bg-zinc-950 border space-x-4 bg-grey rounded-full flex-row  items-center justify-center mt-4 p-5">
           <MaterialIcons name="facebook" size={24} color="blue" />
-          <Text className="text-white font-bold text-center text-lg">
+          <Text className="text-white font-bold text-center text-lg pl-2">
             Sign up with Facebook
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="bg-zinc-950 border rounded-full flex-row items-center justify-center mt-4 p-5">
+        <TouchableOpacity className="bg-zinc-950 border rounded-full flex-row items-center justify-center mt-4 p-5 ">
           <AntDesign name="apple1" size={24} color="white" />
-          <Text className="text-white font-bold text-center text-lg">
+          <Text className="text-white font-bold text-center text-lg pl-2">
             Sign up with Apple
           </Text>
         </TouchableOpacity>
@@ -115,11 +115,11 @@ export default function Login() {
         onRequestClose={toggleModal}
       >
         <View className="flex-1 justify-start bg-black bg-opacity-50 p-4">
-          <View className="flex flex-row justify-start gap-2 pt-6">
-            <TouchableOpacity onPress={toggleModal} className="self-start">
+          <View className="flex flex-row justify-start gap-2 pt-6 items-center mb-2">
+            <TouchableOpacity onPress={toggleModal} className="mr-2">
               <AntDesign name="arrowleft" size={24} color="white" />
             </TouchableOpacity>
-            <Text className="text-white text-3xl font-bold mb-2">Login</Text>
+            <Text className="text-white text-3xl font-bold ">Login</Text>
           </View>
           <View className="bg-black rounded-t-3xl pt-4">
             <Text className="text-white text-2xl font-bold mb-2">
@@ -143,7 +143,7 @@ export default function Login() {
               className="bg-green-500 p-4 rounded-full mt-4"
               onPress={handleLogin}
             >
-              <Text className="text-white text-center font-bold text-lg p-3">
+              <Text className="text-white text-center font-bold text-2xl p-3">
                 Login
               </Text>
             </TouchableOpacity>

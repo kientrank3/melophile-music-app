@@ -58,24 +58,35 @@ const playerSlice = createSlice({
     },
     playNextTrack: (state) => {
       if (state.currentTrack) {
-        state.history.push(state.currentTrack); // Di chuyển currentTrack vào history
+        // Đưa bài hiện tại vào cuối history
+        state.history.push(state.currentTrack);
       }
-      state.queue.shift(); // Loại bỏ bài hiện tại khỏi queue
-      state.currentTrack = state.queue.length ? state.queue[0] : null; // Cập nhật bài tiếp theo
 
-      state.isPlaying = !!state.currentTrack; // Phát nhạc nếu còn bài trong queue
-      state.isVisible = !!state.currentTrack;
+      if (state.queue.length > 0) {
+        // Lấy bài tiếp theo từ queue
+        state.currentTrack = state.queue.shift() || null;
+      } else {
+        // Nếu không còn bài trong queue, dừng phát
+        state.currentTrack = null;
+      }
+
+      state.isPlaying = !!state.currentTrack;
     },
+
     playPreviousTrack: (state) => {
       if (state.history.length > 0) {
-        const previousTrack = state.history.pop(); // Lấy bài trước từ history
-        if (previousTrack) {
-          state.queue.unshift(state.currentTrack!); // Thêm bài hiện tại vào đầu queue
-          state.currentTrack = previousTrack; // Cập nhật bài trước đó là currentTrack
-          state.isPlaying = true;
+        // Đưa bài hiện tại vào đầu queue
+        if (state.currentTrack) {
+          state.queue.unshift(state.currentTrack);
         }
+
+        // Lấy bài trước đó từ history
+        state.currentTrack = state.history.pop() || null;
       }
+
+      state.isPlaying = !!state.currentTrack;
     },
+
     pauseTrack: (state) => {
       state.isPlaying = false;
     },
