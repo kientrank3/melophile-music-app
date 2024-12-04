@@ -54,6 +54,7 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const { user } = useAuth();
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [isPlaylistModalVisible, setPlaylistModalVisible] = useState(false);
+  const router = useRouter();
 
   const fetchSong = async () => {
     try {
@@ -191,6 +192,48 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
       </View>
     </TouchableOpacity>
   );
+  const handleViewAlbum = async () => {
+    if (!song) return;
+
+    try {
+      // Tìm album_id từ bảng SongAlbum
+      const { data: songAlbumData, error: songAlbumError } = await supabase
+        .from("SongAlbum")
+        .select("album_id")
+        .eq("song_id", song.id)
+        .single();
+
+      if (songAlbumError) throw songAlbumError;
+
+      if (songAlbumData && songAlbumData.album_id) {
+        // Kiểm tra xem album có tồn tại không
+        const { data: albumData, error: albumError } = await supabase
+          .from("Album")
+          .select("id")
+          .eq("id", songAlbumData.album_id)
+          .single();
+
+        if (albumError) throw albumError;
+
+        if (albumData) {
+          router.push({
+            pathname: "/playlist/[albumId]",
+            params: {
+              albumId: JSON.stringify(songAlbumData.album_id),
+            },
+          });
+        } else {
+          Alert.alert("Error", "Album not found");
+        }
+      } else {
+        Alert.alert("Notice", "This song is not part of any album.");
+      }
+    } catch (error) {
+      console.error("Error checking album:", error);
+      Alert.alert("Error", "Failed to fetch album information");
+    }
+  };
+
   const options = [
     {
       icon: Heart,
@@ -208,7 +251,12 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
     { icon: ListMusic, label: "Add to queue", iconColor: "white" },
     { icon: Share, label: "Share", iconColor: "white" },
     { icon: Radio, label: "Go to radio", iconColor: "white" },
-    { icon: Album, label: "View album", iconColor: "white" },
+    {
+      icon: Album,
+      label: "View album",
+      iconColor: "white",
+      action: handleViewAlbum,
+    },
     { icon: User, label: "View artist", iconColor: "white" },
     { icon: Info, label: "Song credits", iconColor: "white" },
     { icon: Moon, label: "Sleep timer", iconColor: "white" },
