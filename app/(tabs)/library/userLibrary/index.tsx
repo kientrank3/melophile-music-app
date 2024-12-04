@@ -195,7 +195,6 @@ const UserLibraryScreen = () => {
                 value={username}
                 onChangeText={setUsername}
                 className="bg-zinc-700 text-white p-4 mx-5 rounded-xl text-center"
-                placeholder="Enter new username"
                 placeholderTextColor="#666"
               />
 
