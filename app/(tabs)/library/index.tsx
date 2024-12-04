@@ -8,6 +8,8 @@ import {
   FlatList,
   ListRenderItem,
   Alert,
+  Modal,
+  TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/authContext";
@@ -19,9 +21,15 @@ import { RootState } from "@/redux/store";
 import { setFavorites } from "@/redux/favoritesSlice";
 import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
 import { playTrack } from "@/redux/playSlice";
-import { getArtistWithId, getSongWithId } from "@/controllers/database";
+import {
+  getAllSong,
+  getArtistWithId,
+  getSongByUser,
+  getSongWithId,
+} from "@/controllers/database";
 import { TrackListItem } from "@/components/TrackListItem";
 import { handleTrackSelect } from "@/utils/trackUtils";
+import { TracksList } from "@/components/TrackList";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -45,6 +53,7 @@ const LibraryScreen = () => {
   const likedSongs = useSelector((state: RootState) => state.favorites.songs);
   const likedSongsCount = likedSongs.length;
   const [viewMode, setViewMode] = useState<"all" | "artists" | "albums">("all");
+  const [songs, setSongs] = useState<Song[]>([]);
   const dispatch = useDispatch();
   const router = useRouter();
   const loadRecentItems = async () => {
@@ -72,7 +81,6 @@ const LibraryScreen = () => {
         .eq("user_id", user.id);
 
       if (error) {
-        console.error("Error fetching favorite songs:", error);
       } else {
         const songs = favoriteSongs.map((item) => item.Song);
         dispatch(setFavorites(songs as unknown as Song[]));
@@ -80,9 +88,21 @@ const LibraryScreen = () => {
     }
   };
   useEffect(() => {
+    const fetchSongs = async () => {
+      if (user?.id) {
+        const songs = await getSongByUser(user.id);
+        setSongs(songs);
+      }
+    };
+    const fetchFullSongs = async () => {
+      const songs = await getAllSong();
+      setFullSong(songs);
+    };
+    fetchSongs();
+    fetchFullSongs();
     fetchFavoriteSongs();
     loadRecentItems();
-  }, [user, dispatch, fetchFavoriteSongs, loadRecentItems]);
+  }, [user, loadRecentItems, fetchFavoriteSongs]);
 
   const renderItem: ListRenderItem<LibraryItem> = ({ item }) => (
     <TouchableOpacity
@@ -191,6 +211,52 @@ const LibraryScreen = () => {
       onPress: () => handleItemPress(item),
     })),
   ];
+  const [modalVisible, setModalVisible] = useState(false);
+  const [songTitle, setSongTitle] = useState("");
+  const [songUrl, setSongUrl] = useState("");
+  const [fullSong, setFullSong] = useState<Song[]>([]);
+
+  const handleAddSong = async () => {
+    if (songTitle && songUrl) {
+      const songData = {
+        id: fullSong.length + 1,
+        title: songTitle,
+        url: songUrl,
+        imageUrl:
+          "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/albumImage/default.png",
+        artist_id: 30, // Cập nhật theo thông tin người dùng
+        genre_id: 1, // Cập nhật theo thể loại
+      };
+
+      try {
+        const { data: insertedSong, error } = await supabase
+          .from("Song")
+          .insert(songData)
+          .select("*")
+          .single();
+
+        if (error) {
+          console.error("Error inserting song:", error);
+          return;
+        }
+
+        // Liên kết bài hát với người dùng trong bảng UserSong
+        const userSongData = {
+          user_id: user?.id, // Cập nhật ID người dùng
+          song_id: insertedSong.id, // ID của bài hát mới
+        };
+
+        await supabase.from("UserSong").insert([userSongData]);
+
+        // Đóng modal sau khi hoàn thành
+        setModalVisible(false);
+        Alert.alert("Success", "Song added successfully!");
+      } catch (error) {
+        console.error("Error handling song insertion:", error);
+      }
+    }
+  };
+
   return (
     <View className="flex-1 bg-black">
       {/* Header */}
@@ -209,10 +275,47 @@ const LibraryScreen = () => {
           </TouchableOpacity>
           <Text className="text-white text-2xl font-bold px-4">Library</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Ionicons name="add" size={24} color="white" />
         </TouchableOpacity>
       </View>
+      {/* Modal nhập thông tin bài hát */}
+      <Modal
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+        animationType="slide"
+      >
+        <View className="bg-black h-full pt-12 items-center ">
+          <TextInput
+            placeholder="Song URL"
+            placeholderTextColor={"gray"}
+            value={songUrl}
+            onChangeText={setSongUrl}
+            className="bg-white h-12 p-2 mb-4 w-full rounded-lg"
+          />
+          <TextInput
+            placeholder="Song Title"
+            placeholderTextColor={"gray"}
+            value={songTitle}
+            onChangeText={setSongTitle}
+            className="bg-white h-12 p-2 mb-2 text-black w-full rounded-lg"
+          />
+          <View className="justify-end flex-row w-full mt-4">
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              className="w-20 h-12 rounded-lg border-white border items-center justify-center"
+            >
+              <Text className="text-white font-semibold text-lg ">Huỷ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleAddSong}
+              className="bg-[#1DB954] w-20 h-12 rounded-lg  items-center justify-center ml-4"
+            >
+              <Text className="text-white font-semibold text-lg ">Lưu</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Filter Section */}
       <View className="flex-row justify-between px-4 mb-4">
@@ -268,8 +371,18 @@ const LibraryScreen = () => {
         data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
+
+      <Text className="text-white px-4 py-2 text-md">Your music</Text>
+      <TracksList
+        songs={songs}
+        sroll={true}
+        nestedScroll={true}
+        id={"userPlaylist"}
+        onSelectSong={() => {}}
+      />
+      <View className="mb-20"></View>
     </View>
   );
 };

@@ -362,3 +362,42 @@ export const searchSongsByName = async (
     return [];
   }
 };
+
+export async function getSongByUser(
+  userId: number
+): Promise<(Song & { artist_name: string })[]> {
+  const { data, error } = await supabase
+    .from("UserSong")
+    .select(
+      `
+    user_id,
+    song_id,
+    Song (
+      id,
+      title,
+      url,
+      imageUrl,
+      artist_id,
+      genre_id,
+      Artist (
+        name
+      )
+    )
+  `
+    )
+    .eq("user_id", userId);
+  if (error) {
+    console.error("Error fetching songs by album:", error);
+    throw error;
+  }
+
+  return data.map((row: any) => ({
+    id: row.Song.id,
+    title: row.Song.title,
+    url: row.Song.url,
+    imageUrl: row.Song.imageUrl,
+    artist_id: row.Song.artist_id,
+    genre_id: row.Song.genre_id,
+    artist_name: row.Song.Artist?.name || "Unknown Artist", // Giá trị mặc định nếu thiếu artist_name
+  }));
+}

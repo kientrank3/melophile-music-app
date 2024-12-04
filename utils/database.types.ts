@@ -49,3 +49,7 @@ export interface AlbumCollab {
   artist_id: number;
   album_id: number;
 }
+export interface UserSong {
+  user_id: number;
+  song_id: number;
+}

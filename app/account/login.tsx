@@ -128,7 +128,7 @@ export default function Login() {
             <TextInput
               value={username}
               onChangeText={setUsername}
-              className="bg-gray-700 text-white p-5 rounded mb-4"
+              className="bg-gray-600 text-white p-5 rounded-lg mb-4"
             />
             <Text className="text-white text-2xl font-bold mb-2">
               Your password
@@ -136,14 +136,14 @@ export default function Login() {
             <TextInput
               value={password}
               onChangeText={setPassword}
-              className="bg-gray-700 text-white p-5 rounded mb-4"
+              className="bg-gray-600 text-white p-5 rounded-lg mb-4 text-md"
               secureTextEntry
             />
             <TouchableOpacity
-              className="bg-green-500 p-4 rounded-full mt-4"
+              className="bg-green-500 p-4 rounded-full mt-4 h-16"
               onPress={handleLogin}
             >
-              <Text className="text-white text-center font-bold text-2xl p-3">
+              <Text className="text-white text-center font-bold text-2xl">
                 Login
               </Text>
             </TouchableOpacity>
