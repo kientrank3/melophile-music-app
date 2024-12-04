@@ -37,7 +37,6 @@ import {
   setFavorites,
 } from "@/redux/favoritesSlice";
 import { useDispatch } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -56,7 +55,6 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [isPlaylistModalVisible, setPlaylistModalVisible] = useState(false);
   const router = useRouter();
-  const navigation = useNavigation();
 
   const fetchSong = async () => {
     try {
@@ -236,6 +234,35 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
     }
   };
 
+  const handleViewArtist = async () => {
+    if (!song) return;
+
+    try {
+      // Kiểm tra xem artist có tồn tại không
+      const { data: artistData, error: artistError } = await supabase
+        .from("Artist")
+        .select("id")
+        .eq("id", song.artist_id)
+        .single();
+
+      if (artistError) throw artistError;
+
+      if (artistData) {
+        router.push({
+          pathname: "/artist/[artistId]",
+          params: {
+            artistId: JSON.stringify(song.artist_id),
+          },
+        });
+      } else {
+        Alert.alert("Error", "Artist not found");
+      }
+    } catch (error) {
+      console.error("Error checking artist:", error);
+      Alert.alert("Error", "Failed to fetch artist information");
+    }
+  };
+
   const options = [
     {
       icon: Heart,
@@ -259,7 +286,12 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
       iconColor: "white",
       action: handleViewAlbum,
     },
-    { icon: User, label: "View artist", iconColor: "white" },
+    {
+      icon: User,
+      label: "View artist",
+      iconColor: "white",
+      action: handleViewArtist,
+    },
     { icon: Info, label: "Song credits", iconColor: "white" },
     { icon: Moon, label: "Sleep timer", iconColor: "white" },
   ];
@@ -268,14 +300,6 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
     fetchSong();
     fetchPlaylists();
   }, [songId]);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", () => {
-      setPlaylistModalVisible(false); // Đóng modal playlist nếu đang mở
-    });
-
-    return unsubscribe;
-  }, [navigation]);
 
   if (loading) {
     return (
@@ -353,19 +377,6 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
             </TouchableOpacity>
           </View>
         </View>
-        {/* <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <View style={{ width: 300, padding: 20, backgroundColor: "white", borderRadius: 10 }}>
-            <Text style={{ fontSize: 18, marginBottom: 10 }}>Select Playlist</Text>
-            {playlists.map((playlist) => (
-              <TouchableOpacity key={playlist.id} onPress={() => addToPlaylist(playlist.id)}>
-                <Text style={{ padding: 10 }}>{playlist.name}</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity onPress={() => setPlaylistModalVisible(false)}>
-              <Text style={{ padding: 10 }}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View> */}
       </Modal>
     </View>
   );
