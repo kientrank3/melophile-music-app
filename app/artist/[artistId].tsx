@@ -10,16 +10,13 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   fetchRandomArtists,
-  fetchSongsByAlbum,
   getAlbumsByArtist,
-  getAlbumWithId,
   getArtistWithId,
   getSongsByArtist,
 } from "@/controllers/database";
 import { Album, Artist, Song } from "@/utils/database.types";
 import {
   ArrowLeft,
-  ChevronDown,
   CirclePause,
   CirclePlay,
   EllipsisVertical,

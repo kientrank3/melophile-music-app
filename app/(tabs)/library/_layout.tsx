@@ -1,8 +1,6 @@
 import { StackScreenWithSearchBar } from "@/constants/Layout";
 import { Stack } from "expo-router";
 import { View } from "react-native";
-import LibraryScreen from "./index";
-import { LibraryParamList } from "@/types";
 
 export default function LibraryLayout() {
   return (

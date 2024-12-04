@@ -13,12 +13,12 @@ export const TrackListGenre: React.FC<CardProps> = ({ genre }) => {
     <TouchableOpacity
       onPress={handlePress}
       style={{ backgroundColor: genre.color }}
-      className="h-[90px] rounded-[10px] p-[10px] m-[10px] overflow-hidden"
+      className="h-[90px] rounded-[10px] p-[10px] m-[10px] overflow-hidden "
     >
       <Text className="color-white font-bold text-base">{genre.title}</Text>
 
       <Image
-        className="shadow-lg w-[70px] h-[70px] -mr-5 self-end rounded-[5px]"
+        className="shadow-lg w-[70px] h-[70px] -mr-5 self-end rounded-[5px] absolute bottom-[-16px] right-1"
         style={{ transform: [{ rotate: "24deg" }] }}
         source={{ uri: genre.imageUrl }}
       />
