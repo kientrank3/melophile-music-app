@@ -22,6 +22,7 @@ import { RootState } from "@/redux/store";
 import { setFavorites } from "@/redux/favoritesSlice";
 import { fetchRecentItems } from "@/controllers/recentlyPlayedController";
 import { getArtistWithId, getSongWithId } from "@/controllers/database";
+import { X } from "lucide-react-native";
 type LibraryParamList = {
   index: undefined;
   "userLibrary/index": undefined;
@@ -113,16 +114,14 @@ const LibraryScreen = () => {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("Playlist")
-      .insert([
-        {
-          name: newPlaylistName,
-          user_id: user?.id,
-          imageUrl:
-            "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/albumImage/default.png",
-        },
-      ]);
+    const { data, error } = await supabase.from("Playlist").insert([
+      {
+        name: newPlaylistName,
+        user_id: user?.id,
+        imageUrl:
+          "https://seurmazgxtotnrbiypmg.supabase.co/storage/v1/object/public/albumImage/default.png",
+      },
+    ]);
 
     if (error) {
       console.error("Error creating playlist:", error);
@@ -209,7 +208,7 @@ const LibraryScreen = () => {
       router.push({
         pathname: "/artist/[artistId]",
         params: {
-          artistId: JSON.stringify(item.item_id), // Convert to JSON string
+          artistId: JSON.stringify(item.item_id),
         },
       });
     } else if (item.type === "album") {
@@ -335,7 +334,7 @@ const LibraryScreen = () => {
               onPress={() => setIsModalVisible(false)}
               className="absolute top-4 right-4"
             >
-              <Text className="text-white text-4xl">&times;</Text> {/* Dấu X */}
+              <X size={24} color="white" />
             </TouchableOpacity>
 
             <Text className="text-white text-2xl font-semibold mb-4 text-center">
