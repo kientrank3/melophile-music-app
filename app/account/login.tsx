@@ -16,8 +16,6 @@ import supabase from "@/utils/supabase";
 import { useDispatch } from "react-redux";
 import { login } from "@/redux/authSlice";
 import store from "@/redux/store";
-// import * as Google from "expo-auth-session/providers/google";
-// import { makeRedirectUri } from "expo-auth-session";
 
 export default function Login() {
   const [isModalVisible, setModalVisible] = useState(false);
