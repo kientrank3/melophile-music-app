@@ -131,7 +131,6 @@ const UserLibraryScreen = () => {
           <TouchableOpacity
             className="mt-4 bg-gray-600 py-1 px-4 rounded-full"
             onPress={handleEditProfile}
-            // onPress={() => navigation.navigate("userSettings/index")}
           >
             <Text className="text-white text-sm">Edit Profile</Text>
           </TouchableOpacity>
