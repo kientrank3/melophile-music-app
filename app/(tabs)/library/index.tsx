@@ -153,7 +153,6 @@ const LibraryScreen = () => {
             marginRight: 10,
             borderRadius: item.type === "artist" ? 25 : 5,
           }}
-          //className="w-10 h-10 rounded-full mr-4"
         />
       )}
       <View>

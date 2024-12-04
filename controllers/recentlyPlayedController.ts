@@ -101,7 +101,7 @@ export const fetchRecentItems = async (userId: number) => {
     .eq("user_id", userId)
     .in("type", ["album", "artist"])
     .order("timestamp", { ascending: false })
-    .limit(5);
+    .limit(4);
 
   if (recentError) {
     console.error("Error fetching recent items:", recentError);
