@@ -18,7 +18,8 @@ export const TrackListGenre: React.FC<CardProps> = ({ genre }) => {
       <Text className="color-white font-bold text-base">{genre.title}</Text>
 
       <Image
-        className="shadow-lg w-[70px] h-[70px] -mr-5 self-end rounded-[5px] rotate-[24deg]"
+        className="shadow-lg w-[70px] h-[70px] -mr-5 self-end rounded-[5px]"
+        style={{ transform: [{ rotate: "24deg" }] }}
         source={{ uri: genre.imageUrl }}
       />
     </TouchableOpacity>

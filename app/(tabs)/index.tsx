@@ -43,7 +43,9 @@ const HomeScreen = () => {
   const router = useRouter();
   const [showDrawer, setShowDrawer] = useState(false);
   const [genres, setGenres] = useState<Genre[]>([]);
-  const [albums, setAlbums] = useState<Album[]>([]);
+  const [albums1, setAlbums1] = useState<Album[]>([]);
+  const [albums2, setAlbums2] = useState<Album[]>([]);
+  const [albums3, setAlbums3] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
   const { user } = useAuth();
@@ -56,11 +58,21 @@ const HomeScreen = () => {
     fetchGenre();
   }, []);
   useEffect(() => {
-    const fetchAlbum = async () => {
+    const fetchAlbum1 = async () => {
       const data = await fetchRandomAlbums(5);
-      setAlbums(data || []);
+      setAlbums1(data || []);
     };
-    fetchAlbum();
+    const fetchAlbum2 = async () => {
+      const data = await fetchRandomAlbums(5);
+      setAlbums2(data || []);
+    };
+    const fetchAlbum3 = async () => {
+      const data = await fetchRandomAlbums(5);
+      setAlbums3(data || []);
+    };
+    fetchAlbum1();
+    fetchAlbum2();
+    fetchAlbum3();
   }, []);
   useEffect(() => {
     const fetchArtist = async () => {
@@ -154,7 +166,13 @@ const HomeScreen = () => {
                 <Zap color={"#fff"} size={20} />
                 <Text className="text-white font-xl pl-2">Thông tin mới</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="flex-row items-center py-2">
+              <TouchableOpacity
+                className="flex-row items-center py-2"
+                onPress={() => {
+                  setShowDrawer(false);
+                  router.push("/library");
+                }}
+              >
                 <HistoryIcon color={"#fff"} size={20} />
                 <Text className="text-white font-xl pl-2">
                   Nội dung đã nghe
@@ -198,7 +216,7 @@ const HomeScreen = () => {
           </Text>
           <View>
             <FlatList
-              data={albums}
+              data={albums1}
               renderItem={({ item }) => {
                 return <AlbumListItem album={item} />;
               }}
@@ -214,7 +232,7 @@ const HomeScreen = () => {
           </Text>
           <View>
             <FlatList
-              data={albums}
+              data={albums2}
               renderItem={({ item }) => {
                 return <AlbumListItem album={item} />;
               }}
@@ -265,7 +283,7 @@ const HomeScreen = () => {
           </Text>
           <View>
             <FlatList
-              data={albums}
+              data={albums3}
               renderItem={({ item }) => {
                 return <AlbumListItem album={item} />;
               }}

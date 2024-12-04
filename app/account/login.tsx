@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Modal,
   Alert,
   TextInput,
+  Platform,
 } from "react-native";
 import { FontAwesome, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -43,13 +44,9 @@ export default function Login() {
       }
 
       const currentUser = store.getState().auth.user;
-
-      // Chỉ dispatch nếu user mới khác với user hiện tại
       if (JSON.stringify(currentUser) !== JSON.stringify(user)) {
         dispatch(login(user));
       }
-      // Lưu thông tin đăng nhập
-      //await AsyncStorage.setItem("user", JSON.stringify(user));
 
       // Điều hướng đến Home
       Alert.alert("Đăng nhập thành công", "Chào mừng bạn quay lại!");

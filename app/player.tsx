@@ -54,6 +54,8 @@ const PlayerScreen = React.memo(() => {
   };
   const handleCloseModal = () => {
     setModalVisible(false);
+    //router.back();
+    //dispatch(pauseTrack());
   };
   const router = useRouter();
 
