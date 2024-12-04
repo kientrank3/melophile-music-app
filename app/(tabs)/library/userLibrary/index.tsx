@@ -10,12 +10,16 @@ import {
   FlatList,
   TextInput,
   Modal,
+  Dimensions,
 } from "react-native";
 import { useAuth } from "@/hooks/authContext";
 import supabase from "@/utils/supabase";
 import { useRouter } from "expo-router";
 import { updateUser } from "@/redux/authSlice";
 import { useDispatch } from "react-redux";
+
+// Get screen dimensions
+const { height } = Dimensions.get("window");
 
 const UserLibraryScreen = () => {
   const { user } = useAuth();
@@ -166,27 +170,44 @@ const UserLibraryScreen = () => {
       </View>
       {/* Edit Username Modal */}
       <Modal visible={isModalVisible} transparent={true} animationType="slide">
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
-          <View className="bg-white p-4 rounded-md">
-            <Text className="text-lg font-bold mb-2">Edit Username</Text>
-            <TextInput
-              value={username}
-              onChangeText={setUsername}
-              className="border p-2 mb-4"
-              placeholder="Enter new username"
-            />
-            <TouchableOpacity
-              className="bg-blue-500 py-2 px-4 rounded-md mb-2"
-              onPress={handleSaveUsername}
-            >
-              <Text className="text-white text-center">Save</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="bg-gray-500 py-2 px-4 rounded-md"
-              onPress={() => setModalVisible(false)}
-            >
-              <Text className="text-white text-center">Cancel</Text>
-            </TouchableOpacity>
+        <View className="flex-1 justify-end">
+          <View
+            style={{ height: height * 0.67 }}
+            className="bg-zinc-800 w-full rounded-t-3xl"
+          >
+            {/* Header */}
+            <View className="flex-row justify-between items-center p-6 border-b border-zinc-700">
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Text className="text-zinc-400">Cancel</Text>
+              </TouchableOpacity>
+              <Text className="text-white text-lg font-bold">Edit Profile</Text>
+              <TouchableOpacity onPress={handleSaveUsername}>
+                <Text className="text-green-500">Save</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Content */}
+            <View className="flex-1 justify-center px-5">
+              <Text className="text-white text-base mb-2 text-center">
+                Username
+              </Text>
+              <TextInput
+                value={username}
+                onChangeText={setUsername}
+                className="bg-zinc-700 text-white p-4 mx-5 rounded-xl text-center"
+                placeholder="Enter new username"
+                placeholderTextColor="#666"
+              />
+
+              <TouchableOpacity
+                className="bg-green-500 mx-5 p-4 rounded-xl mt-6"
+                onPress={handleSaveUsername}
+              >
+                <Text className="text-white text-center font-semibold text-lg">
+                  Save Changes
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
