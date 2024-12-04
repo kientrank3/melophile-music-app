@@ -37,6 +37,7 @@ import {
   setFavorites,
 } from "@/redux/favoritesSlice";
 import { useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
 type RootStackParamList = {
   SongDetail: { songId: number };
@@ -55,6 +56,7 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [isPlaylistModalVisible, setPlaylistModalVisible] = useState(false);
   const router = useRouter();
+  const navigation = useNavigation();
 
   const fetchSong = async () => {
     try {
@@ -266,6 +268,15 @@ export const SongDetail = ({ route }: { route: SongDetailRouteProp }) => {
     fetchSong();
     fetchPlaylists();
   }, [songId]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", () => {
+      setPlaylistModalVisible(false); // Đóng modal playlist nếu đang mở
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-black">
