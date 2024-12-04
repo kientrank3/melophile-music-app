@@ -154,7 +154,13 @@ const HomeScreen = () => {
                 <Zap color={"#fff"} size={20} />
                 <Text className="text-white font-xl pl-2">Thông tin mới</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="flex-row items-center py-2">
+              <TouchableOpacity
+                className="flex-row items-center py-2"
+                onPress={() => {
+                  setShowDrawer(false);
+                  router.push("/library");
+                }}
+              >
                 <HistoryIcon color={"#fff"} size={20} />
                 <Text className="text-white font-xl pl-2">
                   Nội dung đã nghe
