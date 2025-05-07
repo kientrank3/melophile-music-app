@@ -34,7 +34,7 @@
     "@rneui/themed": "^4.0.0-rc.8",
     "@supabase/supabase-js": "^2.45.4",
     "babel-plugin-module-resolver": "^5.0.2",
-    "expo": "^52.0.7",
+    "expo": "^53.0.0",
     "expo-audio": "~0.2.4",
     "expo-av": "~15.0.1",
     "expo-blur": "~14.0.1",
